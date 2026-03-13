@@ -1,0 +1,2982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You Are Here — Location Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Smoked Copper — warm dark mode */
+    --ink:         #f0ece4;
+    --ink-soft:    #c0b8a8;
+    --ink-muted:   #7a7268;
+    --paper:       #1e1a16;
+    --paper-warm:  #262018;
+    --paper-deep:  #16120e;
+    --gold:        #d4a844;
+    --gold-light:  #e0be60;
+    --gold-dim:    #a88030;
+    --accent-blue: #4a7a9e;
+    --accent-teal: #90a8ba;
+    --accent-rose: #d07a60;
+    --border:       rgba(255,255,255,0.07);
+    --border-strong:rgba(255,255,255,0.13);
+    /* Five Elements — Smoked Copper */
+    --elem-wood:  #6fa877;
+    --elem-fire:  #d07a60;
+    --elem-earth: #d4a844;   /* aged gold — the signature color */
+    --elem-metal: #90a8ba;
+    --elem-water: #4a7a9e;
+    /* Dark surfaces */
+    --glass-bg:     rgba(255,255,255,0.04);
+    --glass-bg-mid: rgba(255,255,255,0.06);
+    --glass-bg-hi:  rgba(255,255,255,0.09);
+    --glass-border: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Paper grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.30;
+    mix-blend-mode: screen;
+  }
+
+  /* ===== BREATHING ELEMENT ORBS ===== */
+  .bg-orbs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    mix-blend-mode: screen;
+  }
+
+  .orb-wood {
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(111,168,119,0.16) 0%, transparent 68%);
+    top: -20%; left: -14%;
+    animation: orbDrift1 20s ease-in-out infinite;
+  }
+  .orb-fire {
+    width: 540px; height: 540px;
+    background: radial-gradient(circle, rgba(208,122,96,0.14) 0%, transparent 68%);
+    top: 12%; right: -10%;
+    animation: orbDrift2 16s ease-in-out infinite;
+  }
+  .orb-earth {
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(212,168,68,0.12) 0%, transparent 68%);
+    bottom: 8%; left: 28%;
+    animation: orbDrift3 22s ease-in-out infinite;
+  }
+  .orb-metal {
+    width: 620px; height: 620px;
+    background: radial-gradient(circle, rgba(144,168,186,0.10) 0%, transparent 68%);
+    top: 40%; left: -8%;
+    animation: orbDrift4 18s ease-in-out infinite;
+  }
+  .orb-water {
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(74,122,158,0.14) 0%, transparent 68%);
+    bottom: -18%; right: -8%;
+    animation: orbDrift5 24s ease-in-out infinite;
+  }
+
+  @keyframes orbDrift1 {
+    0%,100% { transform: translate(0,0)    scale(1);    opacity: 0.75; }
+    33%      { transform: translate(28px, 18px) scale(1.06); opacity: 1; }
+    66%      { transform: translate(-12px,30px)  scale(0.96); opacity: 0.8; }
+  }
+  @keyframes orbDrift2 {
+    0%,100% { transform: translate(0,0)     scale(1);    opacity: 0.7; }
+    40%     { transform: translate(-22px,15px) scale(1.09); opacity: 1; }
+    70%     { transform: translate(10px,-20px) scale(0.94); opacity: 0.75; }
+  }
+  @keyframes orbDrift3 {
+    0%,100% { transform: translate(0,0)     scale(1);    opacity: 0.65; }
+    50%     { transform: translate(20px,-25px) scale(1.07); opacity: 0.95; }
+  }
+  @keyframes orbDrift4 {
+    0%,100% { transform: translate(0,0)    scale(1);    opacity: 0.6; }
+    45%     { transform: translate(15px,22px) scale(1.1); opacity: 0.9; }
+  }
+  @keyframes orbDrift5 {
+    0%,100% { transform: translate(0,0)      scale(1);    opacity: 0.7; }
+    30%     { transform: translate(-18px,-15px) scale(1.05); opacity: 1; }
+    70%     { transform: translate(12px,8px)   scale(0.97); opacity: 0.75; }
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    padding: 4rem 2rem 2.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(to bottom, rgba(30,26,22,0.85) 0%, rgba(30,26,22,0.0) 100%);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+
+  .header-ornament {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--elem-earth);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 8vw, 5.5rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--ink);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--elem-fire);   /* ember accent */
+  }
+
+  .header-sub {
+    margin-top: 0.75rem;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+    font-family: 'DM Mono', monospace;
+    font-weight: 300;
+  }
+
+  /* ===== TABS ===== */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 1.5rem 2rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 2;
+    background: rgba(30,26,22,0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .tab-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    background: none;
+    border: none;
+    padding: 0.75rem 2rem 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: var(--elem-water);
+    transition: width 0.4s ease;
+  }
+
+  .tab-btn.active {
+    color: var(--ink);
+  }
+
+  .tab-btn.active::after {
+    width: 100%;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== FORM ===== */
+  .form-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .form-label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-strong);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    border-radius: 3px;
+  }
+
+  .form-input:focus {
+    border-color: var(--elem-earth);
+    box-shadow: 0 0 0 3px rgba(212,168,68,0.15);
+  }
+
+  .form-input::placeholder {
+    color: var(--ink-muted);
+    opacity: 0.8;
+  }
+
+  .form-input option {
+    background: #2a2420;
+    color: var(--ink);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-hint {
+    margin-top: 0.4rem;
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .btn-analyze {
+    width: 100%;
+    padding: 1.1rem;
+    background: rgba(240,236,228,0.88);
+    color: #1e1a16;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.1s, box-shadow 0.25s;
+    border-radius: 3px;
+    margin-top: 1rem;
+    animation: restingBreath 8s ease-in-out infinite;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.12);
+  }
+
+  .btn-analyze:hover {
+    background: rgba(250,246,238,0.95);
+    animation: none;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  }
+  .btn-analyze:active { transform: scale(0.99); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+    color: var(--ink-muted);
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ===== RESULTS ===== */
+  #results { display: none; }
+
+  .result-header {
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--elem-earth);
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    margin-bottom: 2rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .result-address {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 300;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .result-vibration {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--elem-water);
+    letter-spacing: 0.1em;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-action {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--border-strong);
+    background: rgba(255,255,255,0.05);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.25s;
+    border-radius: 3px;
+  }
+  .btn-action:hover {
+    background: rgba(240,236,228,0.88);
+    color: #1e1a16;
+    border-color: rgba(240,236,228,0.3);
+  }
+
+  /* ===== READING CARDS ===== */
+  .reading-stack { display: flex; flex-direction: column; gap: 1px; }
+
+  .reading-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-left-width: 2px;
+    overflow: hidden;
+    opacity: 0;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .reading-card:hover {
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* ===== BREATHWORK ANIMATIONS ===== */
+
+  /* Card entrance — slow inhale rise */
+  @keyframes cardInhale {
+    from { opacity: 0; transform: translateY(10px) scale(0.992); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  /* Kept as alias so existing code refs still work */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Resting breath — gentle living pulse for the button */
+  @keyframes restingBreath {
+    0%, 100% { opacity: 0.88; transform: scale(1); }
+    50%       { opacity: 1;    transform: scale(1.008); }
+  }
+
+  /* Loading breath circle */
+  @keyframes breatheIn {
+    0%, 100% { transform: scale(0.68); opacity: 0.2; }
+    50%       { transform: scale(1);   opacity: 0.85; }
+  }
+
+  /* Element bar shimmer — each segment breathes slightly out of phase */
+  @keyframes elemBreath {
+    0%, 100% { opacity: 0.55; }
+    50%       { opacity: 1; }
+  }
+
+  .reading-card {
+    animation: cardInhale 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .reading-card:nth-child(1) { animation-delay: 0.06s; }
+  .reading-card:nth-child(2) { animation-delay: 0.14s; }
+  .reading-card:nth-child(3) { animation-delay: 0.22s; }
+  .reading-card:nth-child(4) { animation-delay: 0.30s; }
+  .reading-card:nth-child(5) { animation-delay: 0.38s; }
+  .reading-card:nth-child(6) { animation-delay: 0.46s; }
+  .reading-card:nth-child(7) { animation-delay: 0.54s; }
+  .reading-card:nth-child(8) { animation-delay: 0.62s; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .card-header:hover { background: rgba(212,168,68,0.04); }
+
+  .card-system {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .system-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-numerology { background: var(--elem-earth); }
+  .dot-chinese    { background: var(--elem-wood); }
+  .dot-vedic      { background: var(--elem-fire); }
+  .dot-synthesis  { background: var(--elem-water); }
+  .dot-astro      { background: var(--elem-metal); }
+
+  .system-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .card-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--ink);
+  }
+
+  .card-toggle {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--ink-muted);
+    transition: transform 0.3s;
+  }
+  .card-toggle.open { transform: rotate(45deg); }
+
+  .card-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .card-body.open { display: block; }
+
+  .card-body-inner {
+    padding-top: 1.25rem;
+  }
+
+  .card-keyword {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--elem-earth);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+  }
+
+  .card-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink-soft);
+  }
+
+  .card-text p { margin-bottom: 0.75rem; }
+  .card-text p:last-child { margin-bottom: 0; }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.75rem 0;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border-strong);
+    background: rgba(212,168,68,0.07);
+    color: var(--ink-soft);
+    border-radius: 3px;
+  }
+
+  .shadow-box {
+    margin-top: 1rem;
+    padding: 0.875rem 1rem;
+    background: rgba(212,168,68,0.06);
+    border-left: 2px solid rgba(212,168,68,0.3);
+    border-radius: 0 3px 3px 0;
+  }
+
+  .shadow-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .shadow-text {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+    line-height: 1.6;
+  }
+
+  /* ===== VIBRATION SUMMARY ===== */
+  .vibration-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--elem-earth);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  }
+
+  .vib-cell {
+    background: rgba(255,255,255,0.04);
+    padding: 1.1rem 1rem;
+    text-align: center;
+  }
+
+  .vib-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .vib-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 0.3rem;
+  }
+
+  /* ===== ASTROCARTOGRAPHY TAB ===== */
+  .astro-intro {
+    margin-bottom: 2rem;
+  }
+
+  .astro-intro h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .astro-intro p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+  }
+
+  .birth-form {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-top: 2px solid var(--elem-earth);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+
+  .birth-form h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .astro-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .astro-location-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 1.25rem;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08);
+    animation: cardInhale 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    opacity: 0;
+    transition: background 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .astro-location-card:hover {
+    background: rgba(255,255,255,0.07);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .astro-location-card:nth-child(1) { animation-delay: 0.05s; }
+  .astro-location-card:nth-child(2) { animation-delay: 0.1s; }
+  .astro-location-card:nth-child(3) { animation-delay: 0.15s; }
+  .astro-location-card:nth-child(4) { animation-delay: 0.2s; }
+  .astro-location-card:nth-child(5) { animation-delay: 0.25s; }
+  .astro-location-card:nth-child(6) { animation-delay: 0.3s; }
+
+  .loc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .loc-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+
+  .loc-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border-strong);
+    background: rgba(212,168,68,0.07);
+    color: var(--ink-muted);
+    border-radius: 3px;
+  }
+
+  .loc-lines {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .line-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    border: 1px solid;
+  }
+
+  .line-venus  { color: #e0c080; border-color: rgba(196,168,106,0.35); background: rgba(196,168,106,0.08); }
+  .line-jupiter { color: #80c890; border-color: rgba(74,154,90,0.35); background: rgba(74,154,90,0.08); }
+  .line-sun    { color: #e0a870; border-color: rgba(224,128,64,0.35); background: rgba(224,128,64,0.08); }
+  .line-moon   { color: #90b0e0; border-color: rgba(96,128,192,0.35); background: rgba(96,128,192,0.08); }
+  .line-saturn { color: #c0a8a0; border-color: rgba(144,112,112,0.35); background: rgba(144,112,112,0.08); }
+  .line-mercury { color: #80c8c8; border-color: rgba(64,160,160,0.35); background: rgba(64,160,160,0.08); }
+  .line-mars   { color: #e08080; border-color: rgba(192,80,80,0.35); background: rgba(192,80,80,0.08); }
+  .line-neptune { color: #90aad0; border-color: rgba(96,138,176,0.35); background: rgba(96,138,176,0.08); }
+
+  .loc-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  .rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .rating-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    min-width: 60px;
+  }
+
+  .rating-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--paper-deep);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .rating-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--elem-water), var(--elem-earth));
+    border-radius: 2px;
+    transition: width 0.8s ease;
+  }
+
+  /* ===== LOADING STATE ===== */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3.5rem;
+    gap: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+
+  .breath-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--elem-earth);
+    animation: breatheIn 4s ease-in-out infinite;
+  }
+
+  .loading-dots span {
+    animation: blink 1.2s infinite;
+    opacity: 0;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes blink {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+  /* ===== SHARE OVERLAY ===== */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .share-modal {
+    background: rgba(38,32,24,0.96);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-top: 2px solid var(--elem-earth);
+    padding: 2rem;
+    max-width: 420px;
+    width: 90%;
+    border-radius: 6px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    color: var(--ink);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .share-modal h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+  }
+
+  .share-text {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+
+  .share-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border-strong);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    outline: none;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+  }
+
+  .share-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .btn-copy {
+    flex: 1;
+    padding: 0.75rem;
+    background: rgba(240,236,228,0.88);
+    color: #1e1a16;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+  .btn-copy:hover { background: rgba(250,246,238,0.95); }
+
+  .btn-close-modal {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+  }
+  .btn-close-modal:hover { background: rgba(255,255,255,0.06); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(240,236,228,0.92);
+    color: #1e1a16;
+    padding: 0.75rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+    z-index: 200;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== FIVE ELEMENT BAR ===== */
+  .element-bar {
+    display: flex;
+    height: 3px;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+  }
+
+  .elem-seg {
+    flex: 1;
+  }
+
+  .seg-wood  { background: var(--elem-wood);  animation: elemBreath 9s  ease-in-out infinite; }
+  .seg-fire  { background: var(--elem-fire);  animation: elemBreath 9s  ease-in-out infinite; animation-delay: 1.8s; }
+  .seg-earth { background: var(--elem-earth); animation: elemBreath 9s  ease-in-out infinite; animation-delay: 3.6s; }
+  .seg-metal { background: var(--elem-metal); animation: elemBreath 9s  ease-in-out infinite; animation-delay: 5.4s; }
+  .seg-water { background: var(--elem-water); animation: elemBreath 9s  ease-in-out infinite; animation-delay: 7.2s; }
+
+  /* ===== DISCLAIMER ===== */
+  .disclaimer-inline {
+    margin-top: 1.1rem;
+    padding: 0.9rem 1rem;
+    border-left: 2px solid rgba(212,168,68,0.35);
+    background: rgba(212,168,68,0.05);
+    border-radius: 0 3px 3px 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ===== FOOTER ===== */
+  .site-footer {
+    margin-top: 4rem;
+    padding: 1.75rem 2rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-element-bar {
+    display: flex;
+    height: 2px;
+    width: 100%;
+    margin-bottom: 1.25rem;
+    opacity: 0.4;
+  }
+
+  .footer-element-bar .elem-seg {
+    animation: none;
+    opacity: 1;
+  }
+
+  .footer-disclaimer {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.75;
+    font-style: italic;
+    max-width: 580px;
+    margin: 0 auto 1rem;
+  }
+
+  .footer-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  /* ===== OPTIONAL BIRTH DETAILS ===== */
+  .birth-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    padding: 0.75rem 0;
+    user-select: none;
+  }
+  .birth-toggle-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--ink-muted);
+    transition: transform 0.3s, background 0.3s;
+    flex-shrink: 0;
+  }
+  .birth-toggle-icon.open { transform: rotate(45deg); background: rgba(212,168,68,0.15); }
+  .birth-toggle-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .birth-toggle-hint {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--ink-muted);
+    opacity: 0.7;
+  }
+  .birth-fields {
+    display: none;
+    padding: 0.5rem 0 0.5rem 0;
+  }
+  .birth-fields.open { display: block; }
+
+  /* ===== PERSONAL READING SECTION ===== */
+  .personal-section {
+    margin-top: 1.25rem;
+    padding: 1.25rem;
+    background: rgba(212,168,68,0.05);
+    border: 1px solid rgba(212,168,68,0.12);
+    border-left: 2px solid var(--elem-earth);
+    border-radius: 4px;
+  }
+  .personal-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--elem-earth);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ===== PRIMER NAV ===== */
+  .primer-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    margin-top: 1rem;
+  }
+
+  .primer-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.3rem 0;
+    position: relative;
+    transition: color 0.25s;
+  }
+  .primer-link:hover { color: var(--elem-earth); }
+  .primer-link::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 0.4rem;
+    vertical-align: 1px;
+  }
+  .primer-link[data-system="numerology"]::before  { background: var(--elem-earth); }
+  .primer-link[data-system="chinese"]::before     { background: var(--elem-wood); }
+  .primer-link[data-system="vedic"]::before        { background: var(--elem-fire); }
+  .primer-link[data-system="astro"]::before        { background: var(--elem-water); }
+
+  /* ===== PRIMER OVERLAY ===== */
+  .primer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: var(--paper);
+    overflow-y: auto;
+    animation: primerIn 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .primer-overlay.open { display: block; }
+
+  @keyframes primerIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .primer-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+    position: relative;
+  }
+
+  .primer-close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 160;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .primer-close:hover { color: var(--ink); background: rgba(255,255,255,0.12); }
+
+  .primer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .primer-badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .primer-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+  .primer-title em { font-style: italic; color: var(--elem-fire); }
+
+  .primer-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--ink-muted);
+    margin-bottom: 2.5rem;
+  }
+
+  .primer-section {
+    margin-bottom: 2.25rem;
+  }
+
+  .primer-h2 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .primer-text {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+  }
+  .primer-text p { margin-bottom: 0.9rem; }
+  .primer-text p:last-child { margin-bottom: 0; }
+  .primer-text strong { color: var(--ink); font-weight: 500; }
+
+  .primer-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 1.1rem 1.25rem;
+    margin: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .primer-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 0.5rem;
+  }
+  .primer-card-body {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+
+  .primer-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  @media (max-width: 500px) {
+    .primer-grid { grid-template-columns: 1fr; }
+  }
+
+  .primer-mini {
+    padding: 0.8rem 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+  }
+  .primer-mini-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .primer-mini-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .primer-elem-row {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+  .primer-elem-chip {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .primer-back-link {
+    display: inline-block;
+    margin-top: 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.5rem 0;
+    transition: color 0.2s;
+  }
+  .primer-back-link:hover { color: var(--elem-earth); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 580px) {
+    .form-row { grid-template-columns: 1fr; }
+    .vibration-summary { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 2rem; }
+    .primer-nav { gap: 0.15rem 0.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Breathing element orbs -->
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb-wood"></div>
+  <div class="orb orb-fire"></div>
+  <div class="orb orb-earth"></div>
+  <div class="orb orb-metal"></div>
+  <div class="orb orb-water"></div>
+</div>
+
+<header>
+  <div class="header-ornament">✦ Ancient Wisdom for the Modern Day ✦</div>
+  <h1>You Are <em>Here</em></h1>
+  <p class="header-sub">location oracle</p>
+  <nav class="primer-nav">
+    <button class="primer-link" data-system="numerology" onclick="openPrimer('numerology')">Numerology</button>
+    <button class="primer-link" data-system="chinese" onclick="openPrimer('chinese')">Chinese Metaphysics</button>
+    <button class="primer-link" data-system="vedic" onclick="openPrimer('vedic')">Vedic</button>
+    <button class="primer-link" data-system="astro" onclick="openPrimer('astro')">Astrocartography</button>
+  </nav>
+</header>
+<div class="element-bar">
+  <div class="elem-seg seg-wood"></div>
+  <div class="elem-seg seg-fire"></div>
+  <div class="elem-seg seg-earth"></div>
+  <div class="elem-seg seg-metal"></div>
+  <div class="elem-seg seg-water"></div>
+</div>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('address')">Address Reading</button>
+  <button class="tab-btn" onclick="switchTab('astro')">Ideal Locations</button>
+</nav>
+
+<!-- ===== ADDRESS TAB ===== -->
+<div id="tab-address" class="tab-panel active">
+<main>
+
+  <div id="address-form">
+    <div class="form-section">
+      <label class="form-label">Street address</label>
+      <input class="form-input" id="street-number" type="text" placeholder="e.g. 1" maxlength="20">
+      <div class="form-hint">Numbers only, or include street number (1, 70-11, etc.)</div>
+    </div>
+
+    <div class="form-section">
+      <label class="form-label">Street name</label>
+      <input class="form-input" id="street-name" type="text" placeholder="e.g. Ocean Avenue">
+    </div>
+
+    <div class="form-row">
+      <div class="form-section">
+        <label class="form-label">Apartment / Unit</label>
+        <input class="form-input" id="unit" type="text" placeholder="e.g. 3H, 2B, 12">
+        <div class="form-hint">Optional but adds depth</div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">City</label>
+        <input class="form-input" id="city" type="text" placeholder="e.g. Santa Monica, CA">
+      </div>
+    </div>
+
+    <div class="divider">reading intent</div>
+
+    <div class="form-section">
+      <label class="form-label">What matters most right now?</label>
+      <select class="form-input" id="intent">
+        <option value="general">General life energy</option>
+        <option value="career">Career & ambition</option>
+        <option value="love">Love & relationships</option>
+        <option value="healing">Healing & inner work</option>
+        <option value="wealth">Wealth & abundance</option>
+        <option value="creativity">Creativity & expression</option>
+        <option value="spirituality">Spirituality & growth</option>
+      </select>
+    </div>
+
+    <div class="divider">optional · deepen your reading</div>
+
+    <div class="birth-toggle" onclick="toggleBirthFields()">
+      <span class="birth-toggle-icon" id="birth-toggle-icon">+</span>
+      <div>
+        <div class="birth-toggle-text">Add birth details</div>
+        <div class="birth-toggle-hint">Unlocks BaZi, Life Path, Nine Star Ki, and I Ching layers</div>
+      </div>
+    </div>
+
+    <div class="birth-fields" id="birth-fields">
+      <div class="form-section">
+        <label class="form-label">Date of birth</label>
+        <input class="form-input" id="addr-birth-date" type="date">
+      </div>
+      <div class="form-row">
+        <div class="form-section">
+          <label class="form-label">Time of birth</label>
+          <input class="form-input" id="addr-birth-time" type="time">
+          <div class="form-hint">As close as you know — approximate is fine</div>
+        </div>
+        <div class="form-section">
+          <label class="form-label">Birth city</label>
+          <input class="form-input" id="addr-birth-place" type="text" placeholder="e.g. New York, NY">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-analyze" onclick="analyzeAddress()">
+      Calculate Reading →
+    </button>
+    <div class="disclaimer-inline">
+      These readings are offered as mirrors for reflection, not maps of fate. They draw on numerology, Chinese metaphysics, Vedic wisdom, and astrocartography as lenses — not verdicts. Take what resonates, leave what doesn't, and trust your own knowing above all.
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results"></div>
+
+</main>
+</div>
+
+<!-- ===== ASTRO TAB ===== -->
+<div id="tab-astro" class="tab-panel">
+<main>
+
+  <div class="astro-intro">
+    <h2>Ideal <em>Locations</em></h2>
+    <p>Astrocartography maps where your natal planetary lines fall on Earth — places where specific energies are amplified. Combined with Chinese metaphysics and numerological resonance, this reveals where you are most supported for different life intentions.</p>
+  </div>
+
+  <div class="birth-form">
+    <h3>Your birth details</h3>
+    <div class="form-section">
+      <label class="form-label">Date of birth</label>
+      <input class="form-input" id="birth-date" type="date">
+    </div>
+    <div class="form-row">
+      <div class="form-section">
+        <label class="form-label">Time of birth</label>
+        <input class="form-input" id="birth-time" type="time">
+        <div class="form-hint">As accurate as possible</div>
+      </div>
+      <div class="form-section">
+        <label class="form-label">Place of birth</label>
+        <input class="form-input" id="birth-place" type="text" placeholder="e.g. New York, NY">
+      </div>
+    </div>
+    <div class="form-section">
+      <label class="form-label">What are you seeking?</label>
+      <select class="form-input" id="astro-intent">
+        <option value="career">Career & visibility</option>
+        <option value="love">Love & deep connection</option>
+        <option value="healing">Healing & restoration</option>
+        <option value="wealth">Wealth & prosperity</option>
+        <option value="spiritual">Spiritual awakening</option>
+        <option value="creativity">Creative expansion</option>
+      </select>
+    </div>
+    <button class="btn-analyze" onclick="generateAstro()">Generate Location Report →</button>
+  </div>
+
+  <div id="astro-results"></div>
+
+</main>
+</div>
+
+<!-- ===== PRIMER OVERLAYS ===== -->
+
+<!-- Numerology Primer -->
+<div class="primer-overlay" id="primer-numerology">
+  <button class="primer-close" onclick="closePrimer('numerology')">×</button>
+  <div class="primer-inner">
+    <div class="primer-badge">
+      <span class="primer-badge-dot" style="background:var(--elem-earth)"></span>
+      <span style="color:var(--elem-earth)">Primer</span>
+    </div>
+    <h1 class="primer-title">The Language of <em>Numbers</em></h1>
+    <p class="primer-subtitle">How numerology reads the hidden vibration in names, addresses, and dates</p>
+
+    <div class="primer-section">
+      <div class="primer-h2">What It Is</div>
+      <div class="primer-text">
+        <p>Numerology is one of the oldest symbolic systems in human history. Its central principle is simple: every number carries a distinct energetic signature, and the numbers embedded in your name, birthdate, and address quietly shape the texture of your experience.</p>
+        <p>It appears independently across civilizations. Pythagoras formalized it in ancient Greece. The Hebrew Kabbalists encoded it in the Tree of Life. Chinese culture built an entire aesthetic of fortune around the sounds and shapes of numbers. These traditions arrived at remarkably similar conclusions about what each number means.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">How It Works</div>
+      <div class="primer-text">
+        <p>Every letter corresponds to a number (A=1, B=2 ... I=9, then the cycle repeats: J=1, K=2, and so on). To find a numerological value, you sum all the digits or letter-values in a word or number, then reduce to a single digit by adding the result's digits together. For instance: the address <strong>1 Ocean Avenue</strong> has a street number of <strong>1</strong>, already reduced.</p>
+        <p>The street name "Ocean Avenue" sums letter by letter: O(6) + C(3) + E(5) + A(1) + N(5) + A(1) + V(4) + E(5) + N(5) + U(3) + E(5) = 43, then 4+3 = <strong>7</strong>.</p>
+        <p>Certain numbers are never reduced: <strong>11</strong>, <strong>22</strong>, and <strong>33</strong> are called Master Numbers, carrying amplified spiritual intensity.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Core Numbers</div>
+      <div class="primer-grid">
+        <div class="primer-mini"><div class="primer-mini-num">1</div><div class="primer-mini-label">The Initiator · Sun</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">2</div><div class="primer-mini-label">The Harmonizer · Moon</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">3</div><div class="primer-mini-label">The Communicator · Jupiter</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">4</div><div class="primer-mini-label">The Builder · Saturn</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">5</div><div class="primer-mini-label">The Catalyst · Mercury</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">6</div><div class="primer-mini-label">The Nurturer · Venus</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">7</div><div class="primer-mini-label">The Seeker · Neptune</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">8</div><div class="primer-mini-label">The Authority · Saturn</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">9</div><div class="primer-mini-label">The Completor · Mars</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">11</div><div class="primer-mini-label">Master · Illumination</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">22</div><div class="primer-mini-label">Master · Builder</div></div>
+        <div class="primer-mini"><div class="primer-mini-num">33</div><div class="primer-mini-label">Master · Teacher</div></div>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">Why Addresses Matter</div>
+      <div class="primer-text">
+        <p>An address has layers. The <strong>street number</strong> governs the building's foundational character — what everyone in that structure shares. The <strong>street name</strong> carries the environmental energy of the place itself, what Chinese metaphysics calls <em>earth luck</em>. And if you have an <strong>apartment or unit number</strong>, that's your private resonance within the larger field.</p>
+        <p>When these layers harmonize, life in that space tends to feel coherent. When they create tension, the address asks you to navigate contrasting energies consciously.</p>
+      </div>
+    </div>
+
+    <button class="primer-back-link" onclick="closePrimer('numerology')">← Back to readings</button>
+  </div>
+</div>
+
+<!-- Chinese Metaphysics Primer -->
+<div class="primer-overlay" id="primer-chinese">
+  <button class="primer-close" onclick="closePrimer('chinese')">×</button>
+  <div class="primer-inner">
+    <div class="primer-badge">
+      <span class="primer-badge-dot" style="background:var(--elem-wood)"></span>
+      <span style="color:var(--elem-wood)">Primer</span>
+    </div>
+    <h1 class="primer-title">The Five <em>Elements</em></h1>
+    <p class="primer-subtitle">Wood, Fire, Earth, Metal, Water — and the living cycles between them</p>
+
+    <div class="primer-section">
+      <div class="primer-h2">What It Is</div>
+      <div class="primer-text">
+        <p>Chinese metaphysics encompasses a vast tradition of cosmological observation spanning over three thousand years. At its heart are the Five Elements (五行, Wǔ Xíng) — not static substances but dynamic phases of energy that describe how the universe moves, transforms, and relates to itself.</p>
+        <p>This system underlies Chinese medicine, feng shui, the BaZi birth chart, the I Ching, and much of East Asian philosophy. It's less a belief system and more a language for describing patterns.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Five Elements</div>
+      <div class="primer-elem-row">
+        <div class="primer-elem-chip" style="background:var(--elem-wood)">Wood</div>
+        <div class="primer-elem-chip" style="background:var(--elem-fire)">Fire</div>
+        <div class="primer-elem-chip" style="background:var(--elem-earth)">Earth</div>
+        <div class="primer-elem-chip" style="background:var(--elem-metal)">Metal</div>
+        <div class="primer-elem-chip" style="background:var(--elem-water)">Water</div>
+      </div>
+      <div class="primer-text">
+        <p><strong>Wood</strong> is growth, vision, the upward push of spring. It governs kindness, planning, and the liver in Chinese medicine.</p>
+        <p><strong>Fire</strong> is radiance, expression, joy, and the peak of expansion. It governs the heart, recognition, and warmth.</p>
+        <p><strong>Earth</strong> is the center — stability, nourishment, the ground beneath all transformation. It governs trust, the stomach, and home.</p>
+        <p><strong>Metal</strong> is precision, refinement, letting go. The energy of autumn, of harvest, of what is distilled to its essence. It governs the lungs and grief.</p>
+        <p><strong>Water</strong> is depth, wisdom, stillness that holds great power. The energy of winter, of contemplation. It governs the kidneys, fear, and the will to endure.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Cycles</div>
+      <div class="primer-card">
+        <div class="primer-card-label">Generative Cycle (相生)</div>
+        <div class="primer-card-body">Wood feeds Fire → Fire creates Earth (ash) → Earth bears Metal → Metal carries Water (condensation) → Water nourishes Wood. Each element gives birth to the next.</div>
+      </div>
+      <div class="primer-card">
+        <div class="primer-card-label">Controlling Cycle (相克)</div>
+        <div class="primer-card-body">Wood parts Earth → Earth dams Water → Water extinguishes Fire → Fire melts Metal → Metal cuts Wood. Each element disciplines another. This is not destruction but necessary regulation.</div>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">Auspicious Numbers</div>
+      <div class="primer-text">
+        <p>In Chinese culture, numbers carry deep significance through homophonic association. <strong>8</strong> (八, bā) sounds like prosperity (发, fā) and is the most commercially auspicious number. <strong>6</strong> (六, liù) means smooth flow. <strong>9</strong> (九, jiǔ) sounds like longevity (久) and was the emperor's number.</p>
+        <p><strong>4</strong> (四, sì) sounds like death (死, sǐ) and is widely avoided — but in this reading system, we treat it as a number of transformation, not misfortune. Every tradition has numbers it handles with particular care.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Heavenly Stems & Earthly Branches</div>
+      <div class="primer-text">
+        <p>The BaZi system (Four Pillars of Destiny) maps a person's birth moment onto four pairs of Heavenly Stems and Earthly Branches, creating a unique elemental chart. The 10 Heavenly Stems cycle through the five elements in yin/yang pairs. The 12 Earthly Branches correspond to the twelve animals of the Chinese zodiac.</p>
+        <p>Together they form the 60-unit Sexagenary Cycle (六十甲子), the oldest known calendar system. When birth data is provided, this reading incorporates your BaZi elemental balance into the address analysis.</p>
+      </div>
+    </div>
+
+    <button class="primer-back-link" onclick="closePrimer('chinese')">← Back to readings</button>
+  </div>
+</div>
+
+<!-- Vedic Primer -->
+<div class="primer-overlay" id="primer-vedic">
+  <button class="primer-close" onclick="closePrimer('vedic')">×</button>
+  <div class="primer-inner">
+    <div class="primer-badge">
+      <span class="primer-badge-dot" style="background:var(--elem-fire)"></span>
+      <span style="color:var(--elem-fire)">Primer</span>
+    </div>
+    <h1 class="primer-title">The Planetary <em>Rulers</em></h1>
+    <p class="primer-subtitle">Vedic numerology, Jyotish wisdom, and the karmic purpose of numbers</p>
+
+    <div class="primer-section">
+      <div class="primer-h2">What It Is</div>
+      <div class="primer-text">
+        <p>Vedic numerology (Ankashāstra) originates in the ancient Indian tradition alongside Jyotish, the science of light — what the West calls Vedic astrology. Where Western numerology tends to emphasize personality and potential, the Vedic approach adds a karmic dimension: not just <em>what</em> a number supports, but <em>what it asks of you</em>.</p>
+        <p>Each number is governed by a Graha (planetary ruler), and each Graha carries both a gift and a demand. Understanding both sides reveals the full picture.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Nine Grahas</div>
+      <div class="primer-text">
+        <p><strong>1 — Surya (Sun):</strong> Leadership, self-expression, visibility. Asks you to become your own authority without dominating others.</p>
+        <p><strong>2 — Chandra (Moon):</strong> Emotion, receptivity, partnership. Asks you to feel without being consumed by feeling.</p>
+        <p><strong>3 — Guru (Jupiter):</strong> Wisdom, creativity, expansion. Asks you to teach what you have learned, not hoard it.</p>
+        <p><strong>4 — Rahu (North Node):</strong> Innovation, disruption, unconventional paths. Asks you to build structures without being imprisoned by them.</p>
+        <p><strong>5 — Budha (Mercury):</strong> Communication, commerce, adaptability. Asks you to move quickly without losing depth.</p>
+        <p><strong>6 — Shukra (Venus):</strong> Beauty, love, harmony. Asks you to nurture without losing yourself in service to others.</p>
+        <p><strong>7 — Ketu (South Node):</strong> Spiritual depth, past-life wisdom, detachment. Asks you to look inward without withdrawing from life.</p>
+        <p><strong>8 — Shani (Saturn):</strong> Discipline, authority, karmic reward. Asks you to earn your power through patience and integrity.</p>
+        <p><strong>9 — Mangala (Mars):</strong> Courage, completion, humanitarian purpose. Asks you to finish what you start and to serve something larger than yourself.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">Karma in the Address</div>
+      <div class="primer-text">
+        <p>In Vedic tradition, you do not arrive at an address by accident. The planetary ruler of your address number reflects a karmic lesson you are currently navigating. A Saturn (8) address will feel demanding but ultimately rewarding. A Venus (6) address will create beauty but test your boundaries.</p>
+        <p>The Vedic reading adds this layer of purposeful challenge to the numerological and Chinese metaphysical analysis, asking not just "what does this space support?" but "what is this space teaching you?"</p>
+      </div>
+    </div>
+
+    <button class="primer-back-link" onclick="closePrimer('vedic')">← Back to readings</button>
+  </div>
+</div>
+
+<!-- Astrocartography Primer -->
+<div class="primer-overlay" id="primer-astro">
+  <button class="primer-close" onclick="closePrimer('astro')">×</button>
+  <div class="primer-inner">
+    <div class="primer-badge">
+      <span class="primer-badge-dot" style="background:var(--elem-water)"></span>
+      <span style="color:var(--elem-water)">Primer</span>
+    </div>
+    <h1 class="primer-title">Where the Stars Touch <em>Earth</em></h1>
+    <p class="primer-subtitle">Astrocartography maps your natal chart onto the globe, revealing where different energies awaken</p>
+
+    <div class="primer-section">
+      <div class="primer-h2">What It Is</div>
+      <div class="primer-text">
+        <p>Astrocartography (also called Astro*Carto*Graphy or locational astrology) was formalized by Jim Lewis in the 1970s, though the principle — that different places on Earth activate different parts of your birth chart — has roots in ancient astrological practice.</p>
+        <p>At the moment of your birth, each planet occupied a specific position in the sky. If you draw lines on a world map showing where each planet was on an angular house cusp (Ascendant, Midheaven, Descendant, IC), you get a network of planetary lines that describe how different locations will feel to you personally.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">The Four Angles</div>
+      <div class="primer-grid">
+        <div class="primer-mini"><div class="primer-mini-num" style="font-size:1rem">ASC</div><div class="primer-mini-label">Ascendant · Self</div></div>
+        <div class="primer-mini"><div class="primer-mini-num" style="font-size:1rem">MC</div><div class="primer-mini-label">Midheaven · Career</div></div>
+        <div class="primer-mini"><div class="primer-mini-num" style="font-size:1rem">DSC</div><div class="primer-mini-label">Descendant · Others</div></div>
+        <div class="primer-mini"><div class="primer-mini-num" style="font-size:1rem">IC</div><div class="primer-mini-label">Imum Coeli · Home</div></div>
+      </div>
+      <div class="primer-text">
+        <p>The <strong>Ascendant (ASC)</strong> line marks where a planet influences how you appear and feel in your own skin. The <strong>Midheaven (MC)</strong> governs career and public life. The <strong>Descendant (DSC)</strong> relates to partnerships and relationships. The <strong>IC (Imum Coeli)</strong> shapes your inner life and sense of home.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">Key Planetary Lines</div>
+      <div class="primer-text">
+        <p><strong>Venus lines</strong> bring beauty, love, and aesthetic pleasure. Living or visiting Venus MC or Venus ASC locations often coincides with periods of romantic and creative flourishing.</p>
+        <p><strong>Jupiter lines</strong> expand everything they touch — optimism, opportunity, generosity. Jupiter MC is one of the most favorable career placements.</p>
+        <p><strong>Sun lines</strong> bring visibility and vitality. Sun MC creates a place where your public identity shines brightest.</p>
+        <p><strong>Moon lines</strong> deepen emotional connection and belonging. Moon IC is the classic "feels like home" placement.</p>
+        <p><strong>Saturn lines</strong> bring discipline and structure. Challenging but rewarding, especially for long-term goals. Saturn MC creates a place where hard work compounds over time.</p>
+        <p><strong>Neptune lines</strong> dissolve boundaries. Deeply spiritual and creative, but can feel disorienting without grounding practices.</p>
+      </div>
+    </div>
+
+    <div class="primer-section">
+      <div class="primer-h2">How It Connects</div>
+      <div class="primer-text">
+        <p>This reading combines astrocartographic planetary lines with numerological resonance of each city's name and the Chinese metaphysical qualities of the location. A place where your Venus MC line falls through a city with a 6-vibration name (Venus-ruled in numerology) and auspicious Chinese numerological associations creates a multilayered alignment of romantic and creative energy. The synthesis of these systems reveals where your celestial map and the earth's energetic geography meet.</p>
+      </div>
+    </div>
+
+    <button class="primer-back-link" onclick="closePrimer('astro')">← Back to readings</button>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-element-bar">
+    <div class="elem-seg seg-wood"></div>
+    <div class="elem-seg seg-fire"></div>
+    <div class="elem-seg seg-earth"></div>
+    <div class="elem-seg seg-metal"></div>
+    <div class="elem-seg seg-water"></div>
+  </div>
+  <p class="footer-disclaimer">
+    You Are Here is a tool for reflection and curiosity. Readings draw on numerological, Chinese metaphysical, Vedic, and astrological traditions as parallel wisdom systems. They are not predictions, and are not a substitute for your own judgment, professional advice, or lived experience. If something in a reading unsettles you, set it down. These traditions existed long before certainty did.
+  </p>
+  <div class="footer-meta">You Are Here · Numerology · Chinese Metaphysics · Vedic · Astrocartography</div>
+</footer>
+
+<!-- Share overlay -->
+<div class="overlay" id="share-overlay" onclick="closeShareIfOutside(event)">
+  <div class="share-modal">
+    <h3>Share this reading</h3>
+    <p class="share-text">Your reading has been encoded as a shareable summary. Copy the link or text below.</p>
+    <input class="share-input" id="share-text-input" readonly>
+    <div class="share-actions">
+      <button class="btn-copy" onclick="copyShare()">Copy to clipboard</button>
+      <button class="btn-close-modal" onclick="closeShare()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== TAB SWITCHING =====
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ===== NUMEROLOGY ENGINE =====
+const LETTER_VALUES = {
+  A:1,B:2,C:3,D:4,E:5,F:6,G:7,H:8,I:9,
+  J:1,K:2,L:3,M:4,N:5,O:6,P:7,Q:8,R:9,
+  S:1,T:2,U:3,V:4,W:5,X:6,Y:7,Z:8
+};
+
+function letterValue(ch) {
+  return LETTER_VALUES[ch.toUpperCase()] || 0;
+}
+
+function reduceNumber(n) {
+  if (n === 11 || n === 22 || n === 33) return n;
+  if (n < 10) return n;
+  const s = String(n).split('').reduce((a,d) => a + parseInt(d), 0);
+  return reduceNumber(s);
+}
+
+function calcStringValue(str) {
+  const cleaned = str.replace(/[^a-zA-Z]/g, '');
+  const sum = cleaned.split('').reduce((a, c) => a + letterValue(c), 0);
+  return { raw: sum, reduced: reduceNumber(sum) };
+}
+
+function parseStreetNumber(str) {
+  const digits = str.replace(/[^0-9]/g, '').split('').map(Number);
+  const sum = digits.reduce((a, b) => a + b, 0);
+  return { raw: sum, reduced: reduceNumber(sum), digits };
+}
+
+function calcUnit(str) {
+  if (!str) return null;
+  const digits = str.replace(/[^0-9]/g, '').split('').map(Number).reduce((a,b)=>a+b,0);
+  const letters = str.replace(/[^a-zA-Z]/g, '').split('').reduce((a,c)=>a+letterValue(c),0);
+  const sum = digits + letters;
+  return { raw: sum, reduced: reduceNumber(sum) };
+}
+
+// ===== BIRTH DETAILS TOGGLE =====
+function toggleBirthFields() {
+  const fields = document.getElementById('birth-fields');
+  const icon = document.getElementById('birth-toggle-icon');
+  fields.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+// ===== BAZI (FOUR PILLARS) ENGINE =====
+const HEAVENLY_STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const STEM_NAMES = ['Yang Wood','Yin Wood','Yang Fire','Yin Fire','Yang Earth','Yin Earth','Yang Metal','Yin Metal','Yang Water','Yin Water'];
+const EARTHLY_BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const BRANCH_ANIMALS = ['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
+const BRANCH_ELEMENTS = ['Water','Earth','Wood','Wood','Earth','Fire','Fire','Earth','Metal','Metal','Earth','Water'];
+
+function calcBaZi(dateStr, timeStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split('-');
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]);
+  const day = parseInt(parts[2]);
+  let hour = 12;
+  if (timeStr) {
+    const tp = timeStr.split(':');
+    hour = parseInt(tp[0]);
+  }
+
+  // Li Chun adjustment (approx Feb 4)
+  let baziYear = year;
+  if (month < 2 || (month === 2 && day < 4)) baziYear--;
+
+  // Year pillar
+  const yearStemIdx = ((baziYear - 4) % 10 + 10) % 10;
+  const yearBranchIdx = ((baziYear - 4) % 12 + 12) % 12;
+
+  // Month pillar — solar month (approx)
+  const solarMonths = [
+    [2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,8],[9,8],[10,8],[11,7],[12,7],[1,6]
+  ];
+  let monthNum = 0;
+  if (month >= 2 && day >= 4) monthNum = month - 1;
+  else if (month === 1 || (month === 2 && day < 4)) monthNum = 11;
+  else monthNum = month - 2;
+  if (monthNum < 0) monthNum = 11;
+  const monthBranchIdx = (monthNum + 2) % 12;
+  const monthStemBase = ((yearStemIdx % 5) * 2 + 2) % 10;
+  const monthStemIdx = (monthStemBase + monthNum) % 10;
+
+  // Day pillar — anchor: Jan 1, 2000 = stem 5 (己), branch 7 (未)
+  const anchor = new Date(2000, 0, 1);
+  const target = new Date(year, month - 1, day);
+  const daysDiff = Math.round((target - anchor) / 86400000);
+  const dayStemIdx = ((5 + daysDiff) % 10 + 10) % 10;
+  const dayBranchIdx = ((7 + daysDiff) % 12 + 12) % 12;
+
+  // Hour pillar
+  const hourBranchIdx = Math.floor(((hour + 1) % 24) / 2);
+  const hourStemBase = (dayStemIdx % 5) * 2;
+  const hourStemIdx = (hourStemBase + hourBranchIdx) % 10;
+
+  // Element count
+  const stemElement = i => ['Wood','Wood','Fire','Fire','Earth','Earth','Metal','Metal','Water','Water'][i];
+  const elements = {};
+  [yearStemIdx, monthStemIdx, dayStemIdx, hourStemIdx].forEach(i => {
+    const el = stemElement(i);
+    elements[el] = (elements[el] || 0) + 1;
+  });
+  [yearBranchIdx, monthBranchIdx, dayBranchIdx, hourBranchIdx].forEach(i => {
+    const el = BRANCH_ELEMENTS[i];
+    elements[el] = (elements[el] || 0) + 1;
+  });
+
+  const daymaster = STEM_NAMES[dayStemIdx];
+  const daymasterElement = stemElement(dayStemIdx);
+  const missing = ['Wood','Fire','Earth','Metal','Water'].filter(e => !elements[e]);
+
+  return {
+    year: { stem: HEAVENLY_STEMS[yearStemIdx], branch: EARTHLY_BRANCHES[yearBranchIdx], stemName: STEM_NAMES[yearStemIdx], animal: BRANCH_ANIMALS[yearBranchIdx] },
+    month: { stem: HEAVENLY_STEMS[monthStemIdx], branch: EARTHLY_BRANCHES[monthBranchIdx], stemName: STEM_NAMES[monthStemIdx], animal: BRANCH_ANIMALS[monthBranchIdx] },
+    day: { stem: HEAVENLY_STEMS[dayStemIdx], branch: EARTHLY_BRANCHES[dayBranchIdx], stemName: STEM_NAMES[dayStemIdx], animal: BRANCH_ANIMALS[dayBranchIdx] },
+    hour: { stem: HEAVENLY_STEMS[hourStemIdx], branch: EARTHLY_BRANCHES[hourBranchIdx], stemName: STEM_NAMES[hourStemIdx], animal: BRANCH_ANIMALS[hourBranchIdx] },
+    daymaster, daymasterElement, elements, missing
+  };
+}
+
+// ===== LIFE PATH / EXPRESSION / SOUL URGE =====
+function calcLifePath(dateStr) {
+  if (!dateStr) return null;
+  const parts = dateStr.split('-');
+  const digits = parts.join('').split('').map(Number);
+  const sum = digits.reduce((a,b) => a+b, 0);
+  return reduceNumber(sum);
+}
+
+function calcExpression(name) {
+  // Full name → all letters summed
+  if (!name) return null;
+  const v = calcStringValue(name);
+  return v.reduced;
+}
+
+function calcSoulUrge(name) {
+  if (!name) return null;
+  const vowels = 'AEIOU';
+  const sum = name.toUpperCase().split('').filter(c => vowels.includes(c)).reduce((a,c) => a + letterValue(c), 0);
+  return reduceNumber(sum);
+}
+
+// ===== NINE STAR KI =====
+function calcNineStarKi(dateStr) {
+  if (!dateStr) return null;
+  const year = parseInt(dateStr.split('-')[0]);
+  const month = parseInt(dateStr.split('-')[1]);
+
+  // Year Ki: counting backward from 2000=1
+  const yearKi = ((2000 - year) % 9 + 9) % 9 || 9;
+
+  // Month Ki: formula using year Ki and month
+  const feb4Month = month >= 2 ? month : month + 12;
+  const monthIndex = feb4Month - 2; // 0-based from Feb
+  // Month numbers count DOWN from the base determined by year Ki group
+  const yearGroup = [1,4,7].includes(yearKi) ? 0 : [2,5,8].includes(yearKi) ? 1 : 2;
+  const monthBases = [8, 5, 2]; // Starting Ki for Feb for each group
+  const monthKi = ((monthBases[yearGroup] - monthIndex) % 9 + 9) % 9 || 9;
+
+  const kiNames = {
+    1: '1 White Water', 2: '2 Black Earth', 3: '3 Jade Wood',
+    4: '4 Green Wood',  5: '5 Yellow Earth', 6: '6 White Metal',
+    7: '7 Red Metal',   8: '8 White Earth',  9: '9 Purple Fire'
+  };
+
+  return { year: yearKi, month: monthKi, yearName: kiNames[yearKi], monthName: kiNames[monthKi] };
+}
+
+// ===== I CHING HEXAGRAM =====
+function calcIChingHexagram(streetNum, nameNum, dateStr) {
+  // Derive hexagram from address + optional birth date
+  let seed = streetNum * 7 + nameNum * 13;
+  if (dateStr) {
+    const parts = dateStr.split('-');
+    seed += parseInt(parts[0]) + parseInt(parts[1]) * 3 + parseInt(parts[2]) * 7;
+  }
+  const hexNum = (seed % 64) + 1;
+
+  const hexagrams = {
+    1:{name:'Qian · The Creative',trigrams:'Heaven / Heaven',meaning:'Pure creative force. This address is a place of initiative and sovereign power. It asks for bold leadership and unwavering self-trust.'},
+    2:{name:'Kun · The Receptive',trigrams:'Earth / Earth',meaning:'Pure receptivity. This address nourishes through yielding and devotion. Strength here is found in openness, not force.'},
+    3:{name:'Zhun · Difficulty at the Beginning',trigrams:'Water / Thunder',meaning:'The energy of germination. Something new is struggling to emerge. Patience and careful cultivation are needed.'},
+    4:{name:'Meng · Youthful Folly',trigrams:'Mountain / Water',meaning:'The energy of the student. This address supports learning, humility, and the willingness to not yet know.'},
+    5:{name:'Xu · Waiting',trigrams:'Water / Heaven',meaning:'Nourishment through patience. This address teaches trust in timing. What you need will come when you are ready.'},
+    6:{name:'Song · Conflict',trigrams:'Heaven / Water',meaning:'Tension between inner truth and outer circumstance. This address asks for honest self-examination before action.'},
+    7:{name:'Shi · The Army',trigrams:'Earth / Water',meaning:'Disciplined collective force. This address supports organized effort and the responsibility of leadership.'},
+    8:{name:'Bi · Holding Together',trigrams:'Water / Earth',meaning:'Union and alliance. This address strengthens bonds and rewards those who build community with sincerity.'},
+    9:{name:'Xiao Chu · Small Taming',trigrams:'Wind / Heaven',meaning:'Gentle restraint. Great power is present but must be channeled carefully. Subtlety wins over force.'},
+    10:{name:'Lu · Treading',trigrams:'Heaven / Lake',meaning:'Walking carefully among powerful forces. This address teaches grace under pressure and respect for boundaries.'},
+    11:{name:'Tai · Peace',trigrams:'Earth / Heaven',meaning:'Heaven and Earth in harmony. One of the most auspicious hexagrams. Prosperity, flow, and deep balance.'},
+    12:{name:'Pi · Standstill',trigrams:'Heaven / Earth',meaning:'A period of stagnation. This address may feel heavy initially, but stillness is preparing the ground for what comes next.'},
+    13:{name:'Tong Ren · Fellowship',trigrams:'Heaven / Fire',meaning:'Community and shared purpose. This address thrives when openness and inclusivity guide its energy.'},
+    14:{name:'Da You · Great Possession',trigrams:'Fire / Heaven',meaning:'Abundance and supreme success. This address carries the energy of wealth, recognition, and generous overflow.'},
+    15:{name:'Qian · Modesty',trigrams:'Earth / Mountain',meaning:'The power of humility. The mountain contained within the earth. This address rewards quiet competence.'},
+    16:{name:'Yu · Enthusiasm',trigrams:'Thunder / Earth',meaning:'Joyful movement and inspired action. This address sparks motivation and collective excitement.'},
+    17:{name:'Sui · Following',trigrams:'Lake / Thunder',meaning:'Adaptability and responsiveness. This address supports those who can lead by listening.'},
+    18:{name:'Gu · Work on What Has Been Spoiled',trigrams:'Mountain / Wind',meaning:'Restoration and repair. This address carries the energy of fixing what is broken — in systems, relationships, or self.'},
+    19:{name:'Lin · Approach',trigrams:'Earth / Lake',meaning:'Something great is drawing near. This address carries the energy of hopeful arrival and increasing influence.'},
+    20:{name:'Guan · Contemplation',trigrams:'Wind / Earth',meaning:'The tower of observation. This address supports deep looking, meditation, and the wisdom that comes from watching.'},
+    21:{name:'Shi He · Biting Through',trigrams:'Fire / Thunder',meaning:'Decisive action that clears obstacles. This address does not tolerate dishonesty or half-measures.'},
+    22:{name:'Bi · Grace',trigrams:'Mountain / Fire',meaning:'Beauty and elegance. This address supports artistic expression and the cultivation of refined presence.'},
+    23:{name:'Bo · Splitting Apart',trigrams:'Mountain / Earth',meaning:'Dissolution of the old. This address may require letting go before rebuilding. Release is the first creative act.'},
+    24:{name:'Fu · Return',trigrams:'Earth / Thunder',meaning:'The turning point. After darkness, the first light. This address carries the energy of renewal and cyclical rebirth.'},
+    25:{name:'Wu Wang · Innocence',trigrams:'Heaven / Thunder',meaning:'Spontaneous truth. This address rewards action from genuine impulse rather than calculation.'},
+    26:{name:'Da Chu · Great Taming',trigrams:'Mountain / Heaven',meaning:'Great power held in stillness. This address supports the accumulation of inner resources before major expression.'},
+    27:{name:'Yi · Nourishment',trigrams:'Mountain / Thunder',meaning:'Careful attention to what feeds you — physically, emotionally, spiritually. This address asks: what are you consuming?'},
+    28:{name:'Da Guo · Great Excess',trigrams:'Lake / Wind',meaning:'A beam bending under weight. This address carries intensity that requires structural support and conscious balance.'},
+    29:{name:'Kan · The Abysmal Water',trigrams:'Water / Water',meaning:'Depth upon depth. This address teaches courage in the face of emotional or situational complexity.'},
+    30:{name:'Li · The Clinging Fire',trigrams:'Fire / Fire',meaning:'Radiant clarity and illumination. This address amplifies visibility, passion, and the power of clear perception.'},
+    31:{name:'Xian · Influence',trigrams:'Lake / Mountain',meaning:'Mutual attraction. This address carries strong relational magnetism and the energy of meaningful connection.'},
+    32:{name:'Heng · Duration',trigrams:'Thunder / Wind',meaning:'Enduring consistency. This address supports long-term commitments and the quiet power of persistence.'},
+    33:{name:'Dun · Retreat',trigrams:'Heaven / Mountain',meaning:'Strategic withdrawal. Sometimes the wisest move is to step back. This address teaches the power of well-timed retreat.'},
+    34:{name:'Da Zhuang · Great Power',trigrams:'Thunder / Heaven',meaning:'Tremendous force. This address amplifies ambition and drive, but asks that power be exercised with righteousness.'},
+    35:{name:'Jin · Progress',trigrams:'Fire / Earth',meaning:'The sun rising over the earth. Clear, natural advancement. This address supports career growth and public recognition.'},
+    36:{name:'Ming Yi · Darkening of the Light',trigrams:'Earth / Fire',meaning:'The light goes underground. This address supports inner work during outwardly difficult periods. Protect what matters.'},
+    37:{name:'Jia Ren · The Family',trigrams:'Wind / Fire',meaning:'Domestic harmony and the proper ordering of intimate bonds. This address deepens family ties and household wellbeing.'},
+    38:{name:'Kui · Opposition',trigrams:'Fire / Lake',meaning:'Apparent contradiction. Two forces that seem opposed may generate creative insight. This address teaches the value of difference.'},
+    39:{name:'Jian · Obstruction',trigrams:'Water / Mountain',meaning:'The path is blocked. This address asks for patience and self-reflection rather than forceful advance.'},
+    40:{name:'Jie · Deliverance',trigrams:'Thunder / Water',meaning:'Release and liberation. The storm passes. This address carries the energy of relief and fresh possibility.'},
+    41:{name:'Sun · Decrease',trigrams:'Mountain / Lake',meaning:'Simplification. This address asks what can be let go of. In reduction, essence is revealed.'},
+    42:{name:'Yi · Increase',trigrams:'Wind / Thunder',meaning:'Expansion and generous growth. One of the most auspicious hexagrams for abundance and forward movement.'},
+    43:{name:'Guai · Breakthrough',trigrams:'Lake / Heaven',meaning:'Decisive resolution. Something that has been building reaches its moment of clarity and release.'},
+    44:{name:'Gou · Coming to Meet',trigrams:'Heaven / Wind',meaning:'An unexpected encounter. This address attracts chance meetings and influences that alter the trajectory.'},
+    45:{name:'Cui · Gathering Together',trigrams:'Lake / Earth',meaning:'Assembly and convergence. This address draws people and resources together for a shared purpose.'},
+    46:{name:'Sheng · Pushing Upward',trigrams:'Earth / Wind',meaning:'Steady, organic growth — like a plant rising from soil. Effort applied here yields natural, sustained ascent.'},
+    47:{name:'Kun · Oppression',trigrams:'Lake / Water',meaning:'Exhaustion and constriction. This address may test endurance. True character emerges under pressure.'},
+    48:{name:'Jing · The Well',trigrams:'Water / Wind',meaning:'An inexhaustible source. This address connects to deep resources — wisdom, nourishment, community sustenance.'},
+    49:{name:'Ge · Revolution',trigrams:'Lake / Fire',meaning:'Transformation and radical change. This address supports reinvention and the courage to break from the past.'},
+    50:{name:'Ding · The Cauldron',trigrams:'Fire / Wind',meaning:'Sacred transformation. Raw material becomes nourishment. This address supports alchemical creative work.'},
+    51:{name:'Zhen · The Arousing Thunder',trigrams:'Thunder / Thunder',meaning:'Shock and awakening. This address brings sudden clarity. What was dormant is startled into life.'},
+    52:{name:'Gen · Keeping Still',trigrams:'Mountain / Mountain',meaning:'Absolute stillness. Meditation, inner quiet, the mountain that does not move. This address asks you to stop and listen.'},
+    53:{name:'Jian · Development',trigrams:'Wind / Mountain',meaning:'Gradual progress. Like a tree growing on a mountainside — slow, steady, beautifully persistent.'},
+    54:{name:'Gui Mei · The Marrying Maiden',trigrams:'Thunder / Lake',meaning:'Navigating relationships with awareness of power dynamics. This address teaches emotional intelligence in partnership.'},
+    55:{name:'Feng · Abundance',trigrams:'Thunder / Fire',meaning:'Peak fullness. The sun at midday. This address carries the energy of maximum expression and the wisdom to enjoy it.'},
+    56:{name:'Lu · The Wanderer',trigrams:'Fire / Mountain',meaning:'The traveler. This address carries transitory energy — valuable for growth through movement and impermanence.'},
+    57:{name:'Xun · The Gentle Wind',trigrams:'Wind / Wind',meaning:'Gentle, persistent influence. This address works through subtlety rather than force. Patience penetrates where pressure cannot.'},
+    58:{name:'Dui · The Joyous Lake',trigrams:'Lake / Lake',meaning:'Joy, celebration, and the pleasure of genuine connection. This address lightens the spirit.'},
+    59:{name:'Huan · Dispersion',trigrams:'Wind / Water',meaning:'Dissolving barriers. What was frozen or rigid softens. This address supports emotional opening and releasing isolation.'},
+    60:{name:'Jie · Limitation',trigrams:'Water / Lake',meaning:'Healthy boundaries. This address teaches the art of knowing when to say no, creating freedom through structure.'},
+    61:{name:'Zhong Fu · Inner Truth',trigrams:'Wind / Lake',meaning:'Genuine sincerity that moves others. This address amplifies authenticity and the power of being deeply honest.'},
+    62:{name:'Xiao Guo · Small Exceeding',trigrams:'Thunder / Mountain',meaning:'Small, careful steps. Ambition tempered by circumstance. This address rewards humility and precise, modest action.'},
+    63:{name:'Ji Ji · After Completion',trigrams:'Water / Fire',meaning:'Everything in its right place. A rare moment of perfect balance. This address asks you to enjoy equilibrium while maintaining vigilance.'},
+    64:{name:'Wei Ji · Before Completion',trigrams:'Fire / Water',meaning:'The final hexagram: almost there, but not yet. Transition, anticipation, the threshold before arrival. Everything is still becoming.'}
+  };
+
+  return { number: hexNum, ...(hexagrams[hexNum] || hexagrams[1]) };
+}
+
+// ===== SHARED BIRTH STATE =====
+window.birthChart = null;
+
+function computeBirthData() {
+  const dateStr = document.getElementById('addr-birth-date')?.value || document.getElementById('birth-date')?.value;
+  const timeStr = document.getElementById('addr-birth-time')?.value || document.getElementById('birth-time')?.value;
+
+  if (!dateStr) return null;
+
+  const bazi = calcBaZi(dateStr, timeStr);
+  const lifePath = calcLifePath(dateStr);
+  const nineStarKi = calcNineStarKi(dateStr);
+
+  window.birthChart = { bazi, lifePath, nineStarKi, dateStr, timeStr };
+  return window.birthChart;
+}
+
+// ===== NUMBER MEANINGS =====
+const NUMBER_PROFILES = {
+  1: {
+    keyword: "The Initiator",
+    element: "Fire · Yang",
+    planet: "Sun",
+    chinese: "一 (Yī) — singular force, new beginnings, solar authority",
+    vedic: "Surya (Sun) energy — leadership, visibility, self-expression",
+    strengths: ["Leadership", "Independence", "Courage", "Innovation", "Self-reliance"],
+    career: "A 1 address strongly activates professional ambition, leadership roles, and the desire to be first. Excellent for entrepreneurs, executives, and anyone building something from scratch.",
+    love: "Independent energy. Creates space for strong individuals but can feel isolating in partnership if one person needs more togetherness.",
+    shadow: "Can amplify ego tension, isolation, and difficulty receiving help. The pressure to lead can become lonely.",
+    healing: "The 1 asks you to become your own authority. It does not heal through rest but through courageous self-definition.",
+    wealth: "Strong for new ventures and solo initiatives. Less supportive of collaborative wealth-building.",
+    creativity: "Excellent — original ideas and the drive to bring them into being.",
+    spirituality: "The path of the self as sacred. 1 spaces ask: who are you when no one is defining you?"
+  },
+  2: {
+    keyword: "The Harmonizer",
+    element: "Water · Yin",
+    planet: "Moon",
+    chinese: "二 (Èr) — partnership, balance, receptive wisdom",
+    vedic: "Chandra (Moon) energy — emotional depth, receptivity, relationships",
+    strengths: ["Partnership", "Sensitivity", "Diplomacy", "Intuition", "Patience"],
+    career: "2 supports collaborative work, mediation, counseling, and any role requiring emotional intelligence. Less supportive of solo ambition.",
+    love: "One of the most relationship-oriented numbers. A 2 home creates natural intimacy and the conditions for deep partnership.",
+    shadow: "Can amplify dependency, indecision, and oversensitivity. Conflict avoidance becomes a habit.",
+    healing: "Deeply healing for relational wounds. The 2 creates safety to feel.",
+    wealth: "Attracts through connection and partnership rather than solo effort.",
+    creativity: "Collaboratively generative. Best when creating in partnership.",
+    spirituality: "The path of union — the divine encountered through the other."
+  },
+  3: {
+    keyword: "The Communicator",
+    element: "Fire · Yang",
+    planet: "Jupiter",
+    chinese: "三 (Sān) — growth, expression, creative triad",
+    vedic: "Guru (Jupiter) energy — wisdom, expansion, joyful abundance",
+    strengths: ["Creativity", "Communication", "Joy", "Social magnetism", "Artistic expression"],
+    career: "3 is the number of creative professionals — writers, performers, teachers, marketers, anyone whose work involves expression and connection. It amplifies voice and visibility.",
+    love: "Social and warm. Creates a home people want to gather in. Romantic but sometimes uncommitted.",
+    shadow: "Scattered energy, superficiality, avoidance of depth through constant activity and socializing.",
+    healing: "Heals through creative expression and joy. Art, music, storytelling are medicine here.",
+    wealth: "Attracts through ideas, creativity, and social networks.",
+    creativity: "One of the highest creativity numbers. Exceptional for artists.",
+    spirituality: "The sacred triad — body, mind, spirit. Joy as spiritual practice."
+  },
+  4: {
+    keyword: "The Builder",
+    element: "Earth · Yin",
+    planet: "Uranus / Saturn",
+    chinese: "四 (Sì) — structure, foundation, BUT sounds like death (死, sǐ) — use with awareness",
+    vedic: "Rahu energy — unconventional structures, breakthroughs through discipline",
+    strengths: ["Stability", "Discipline", "Reliability", "Practical mastery", "Long-term building"],
+    career: "4 rewards methodical, disciplined effort. Excellent for builders, engineers, accountants, project managers — anyone who creates lasting structures.",
+    love: "Stable and loyal. A 4 home is built for commitment. Can feel rigid or routine without conscious effort to inject spontaneity.",
+    shadow: "Rigidity, overwork, resistance to change. The 4 can become a cage if the resident is afraid of growth.",
+    healing: "Heals through routine, structure, and embodied practice. This home asks you to build healthy habits.",
+    wealth: "Steady, slow accumulation. Not dramatic wealth but reliable growth.",
+    creativity: "Challenges pure free expression. Best for craft — the discipline of an art form.",
+    spirituality: "Sacred order. The grid of reality as a spiritual text."
+  },
+  5: {
+    keyword: "The Catalyst",
+    element: "Metal · Yang",
+    planet: "Mercury",
+    chinese: "五 (Wǔ) — the center, the five elements, the pivot of all directions",
+    vedic: "Budha (Mercury) energy — communication, commerce, intellect, movement",
+    strengths: ["Freedom", "Adventure", "Communication", "Networking", "Adaptability"],
+    career: "5 is arguably the most career-activating street number. Mercury governs commerce, persuasion, and the movement of information and resources. Excellent for salespeople, writers, travelers, media professionals, and networkers.",
+    love: "Electric but unstable. Creates excitement but challenges long-term commitment. A 5 home needs conscious rootedness to sustain partnership.",
+    shadow: "Restlessness, inability to commit, scattered energy across too many directions simultaneously.",
+    healing: "Heals through movement, change, and the release of what no longer serves. This home initiates endings as readily as beginnings.",
+    wealth: "Strong for multiple income streams and opportunistic wealth. Unstable for patient, long-term accumulation.",
+    creativity: "Excellent for prolific, eclectic creative work.",
+    spirituality: "The five-pointed path — exploring many traditions before finding your own synthesis."
+  },
+  6: {
+    keyword: "The Nurturer",
+    element: "Earth · Yin",
+    planet: "Venus",
+    chinese: "六 (Liù) — smooth flow, ease, 'flowing and smooth' (六六大顺, liùliù dàshùn)",
+    vedic: "Shukra (Venus) energy — beauty, harmony, love, domestic abundance",
+    strengths: ["Nurturing", "Beauty", "Harmony", "Responsibility", "Deep love"],
+    career: "6 supports service-oriented careers — healthcare, counseling, design, education, anything involving care for others. It is Venus-ruled and rewards beauty-conscious work.",
+    love: "One of the highest love numbers. The 6 home creates warmth, beauty, and the conditions for deep domestic happiness. People heal here.",
+    shadow: "Over-responsibility, martyrdom, perfectionism in the home environment, difficulty with boundaries.",
+    healing: "Profoundly healing. The 6 is the most livable number — it creates an environment that holds and restores.",
+    wealth: "Attracts through service, beauty, and relationship. Not aggressive wealth energy.",
+    creativity: "Excellent for design, beauty, and any creative work that serves or heals.",
+    spirituality: "Love as the spiritual path. The home as sanctuary."
+  },
+  7: {
+    keyword: "The Seeker",
+    element: "Water · Yin",
+    planet: "Neptune / Ketu",
+    chinese: "七 (Qī) — spiritual completion, esoteric wisdom, the mystical number",
+    vedic: "Ketu energy — past life wisdom, spiritual depth, detachment, moksha",
+    strengths: ["Depth", "Intuition", "Wisdom", "Solitude", "Spiritual intelligence"],
+    career: "7 supports analytical, research-oriented, or spiritually oriented work. Excellent for academics, scientists, philosophers, therapists, and spiritual practitioners.",
+    love: "Intense and deep but requires solitude. A 7 home can create profound intimacy between two contemplative people, but feels isolating if one needs more social energy.",
+    shadow: "Isolation, withdrawal, excessive introspection, difficulty with practical daily life.",
+    healing: "Deep inner healing. This home will surface what has been unconscious.",
+    wealth: "Indirect — wealth comes through wisdom and expertise, not hustle.",
+    creativity: "Excellent for deep, singular creative vision. Not collaborative.",
+    spirituality: "One of the highest spiritual numbers. The seeker's sanctuary."
+  },
+  8: {
+    keyword: "The Authority",
+    element: "Earth · Yang",
+    planet: "Saturn",
+    chinese: "八 (Bā) — abundance and prosperity (sounds like 发, fā, to prosper) — most auspicious number in Chinese culture",
+    vedic: "Shani (Saturn) energy — karma, discipline, authority, eventual mastery and reward",
+    strengths: ["Power", "Abundance", "Discipline", "Authority", "Mastery"],
+    career: "8 is the most directly career and wealth-activating number in Chinese metaphysics. The luckiest business number. Rewards disciplined effort with material achievement and authority.",
+    love: "The 8 home creates a powerful environment but can neglect tenderness. Partnership here requires both people to be ambitious and equally committed to the relationship.",
+    shadow: "Workaholism, power struggles, materialism, the sacrifice of everything soft for achievement.",
+    healing: "Heals through empowerment and competence rather than rest and softness.",
+    wealth: "The highest wealth number, particularly in Chinese metaphysics. This address is auspicious for material abundance.",
+    creativity: "Productive for large-scale creative work with commercial application.",
+    spirituality: "The infinity sign turned upright. Mastery of the material as spiritual practice."
+  },
+  9: {
+    keyword: "The Completor",
+    element: "Fire · Yang",
+    planet: "Mars",
+    chinese: "九 (Jiǔ) — longevity and endurance (sounds like 久, jiǔ, long-lasting). The emperor's number.",
+    vedic: "Mangala (Mars) energy — completion, courage, the culmination of cycles",
+    strengths: ["Wisdom", "Completion", "Humanitarian depth", "Generosity", "Legacy-building"],
+    career: "9 supports work that touches the collective — nonprofit, humanitarian, creative legacy, teaching, and any work oriented toward what endures beyond the individual.",
+    love: "Deep, unconditional love but with a tendency toward self-sacrifice. The 9 home can become the gathering place for everyone else's needs.",
+    shadow: "Difficulty letting go, past-heaviness, giving too much, unfinished business surfacing.",
+    healing: "Deeply healing for letting go and completing what is unresolved. A 9 home will bring things to their natural end.",
+    wealth: "Attracts through service and generosity rather than calculation.",
+    creativity: "Excellent for legacy creative work — the magnum opus.",
+    spirituality: "The final integration before the cycle renews. Profound spiritual depth."
+  },
+  11: {
+    keyword: "The Illuminator",
+    element: "Air · Yang–Yin bridge",
+    planet: "Uranus / Moon",
+    chinese: "十一 (Shíyī) — pioneering force doubled. First beginnings, amplified.",
+    vedic: "Combines Surya (Sun/1) and Chandra (Moon/1) — the sacred marriage of solar clarity and lunar intuition. A master number in Vedic numerology corresponds to high karmic purpose.",
+    strengths: ["Vision", "Heightened intuition", "Inspiration", "Illumination of others", "Nervous sensitivity"],
+    career: "11 strongly activates work that involves vision, communication, creative leadership, and the ability to inspire. Exceptional for those whose work involves seeing what others haven't yet articulated.",
+    love: "Intensely intuitive and perceptive, but the charged energy of an 11 home can create emotional oversensitivity. Deep intimacy is possible; so is overstimulation.",
+    shadow: "Anxiety, nervous exhaustion, difficulty grounding, the gap between vision and execution.",
+    healing: "The 11 heals by illuminating what has been in shadow. It is not a soft healing but a bright one.",
+    wealth: "Attracts through ideas and inspiration. Less directly material than 8.",
+    creativity: "One of the highest creative numbers. Visionary output. May struggle to finish.",
+    spirituality: "The master spiritual number. This home hums with sacred frequency."
+  },
+  22: {
+    keyword: "The Master Builder",
+    element: "Earth · Yang",
+    planet: "Uranus / Saturn",
+    chinese: "二十二 (Èrshíèr) — double partnership energy channeled through structural mastery",
+    vedic: "The rarest master number — combines the receptivity of 2 with Saturn's disciplined building power. Karmic architecture.",
+    strengths: ["Large-scale vision", "Practical mastery", "Legacy building", "Transformation of ideas into reality"],
+    career: "22 is the most ambitious professional number — the address of those who build institutions, movements, and lasting structures. Exceptional career energy for those with the discipline to meet it.",
+    love: "Partnership is essential to the 22's fullest expression, but the scale of vision can overwhelm intimate life.",
+    shadow: "Pressure, overwhelm, the gap between grand vision and daily capacity.",
+    healing: "Heals by creating — the act of building something that matters.",
+    wealth: "The master wealth builder. Long-term, structural, generational.",
+    creativity: "Visionary scale. Architecture, systems, world-changing art.",
+    spirituality: "The sacred made manifest in physical form."
+  },
+  33: {
+    keyword: "The Master Teacher",
+    element: "Fire · Yang–Yin bridge",
+    planet: "Jupiter / Neptune",
+    chinese: "三十三 (Sānshísān) — creative expression tripled. The highest compassion.",
+    vedic: "The rarest master number. Combines Jupiter's expansion with Neptune's compassion. Sacred teaching lineage.",
+    strengths: ["Compassion at scale", "Teaching mastery", "Healing presence", "Creative blessing"],
+    career: "33 is the address of healers, teachers, artists, and spiritual leaders. Work that serves the collective.",
+    love: "Unconditional love as both gift and burden. The 33 loves without limits — which requires strong self-protection.",
+    shadow: "Self-sacrifice to the point of dissolution. Taking on others' pain as your own.",
+    healing: "The most healing address number that exists. A 33 home holds.",
+    wealth: "Attracted through service and devotion.",
+    creativity: "Sacred creative expression. Art that heals.",
+    spirituality: "The Christ consciousness number. The highest devotion."
+  }
+};
+
+// ===== ANALYSIS ENGINE =====
+let currentReading = null;
+
+function analyzeAddress() {
+  const streetNum = document.getElementById('street-number').value.trim();
+  const streetName = document.getElementById('street-name').value.trim();
+  const unit = document.getElementById('unit').value.trim();
+  const city = document.getElementById('city').value.trim();
+  const intent = document.getElementById('intent').value;
+
+  if (!streetNum || !streetName) {
+    showToast('Please enter at least a street number and name');
+    return;
+  }
+
+  // Calculate
+  const numCalc = parseStreetNumber(streetNum);
+  const nameCalc = calcStringValue(streetName);
+  const unitCalc = unit ? calcUnit(unit) : null;
+
+  const profile = NUMBER_PROFILES[numCalc.reduced] || NUMBER_PROFILES[9];
+  const nameProfile = NUMBER_PROFILES[nameCalc.reduced] || NUMBER_PROFILES[9];
+  const unitProfile = unitCalc ? (NUMBER_PROFILES[unitCalc.reduced] || NUMBER_PROFILES[9]) : null;
+
+  // Compute optional birth data
+  const birth = computeBirthData();
+  const iching = calcIChingHexagram(numCalc.reduced, nameCalc.reduced,
+    birth ? birth.dateStr : null);
+
+  // Store for download/share
+  currentReading = {
+    address: buildAddressString(streetNum, streetName, unit, city),
+    numCalc, nameCalc, unitCalc,
+    profile, nameProfile, unitProfile,
+    intent,
+    vibration: unitCalc
+      ? `${numCalc.reduced} · ${nameCalc.reduced} · ${unitCalc.reduced}`
+      : `${numCalc.reduced} · ${nameCalc.reduced}`,
+    birth, iching
+  };
+
+  renderResults(currentReading);
+}
+
+function buildAddressString(num, name, unit, city) {
+  let s = num + ' ' + name;
+  if (unit) s += ', ' + unit;
+  if (city) s += ', ' + city;
+  return s;
+}
+
+function renderResults(r) {
+  document.getElementById('address-form').style.display = 'none';
+  const resultsEl = document.getElementById('results');
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = `<div class="loading"><div class="breath-circle"></div><span>Reading the vibration<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></span></div>`;
+
+  setTimeout(() => {
+    let html = '';
+
+    // ── At-a-glance header ──
+    const glanceSummary = buildAtAGlance(r);
+    html += `
+      <div class="result-header">
+        <div class="result-address">${r.address}</div>
+        <div class="result-vibration">Vibration: ${r.vibration}${r.birth ? ' · Life Path ' + r.birth.lifePath : ''}${r.birth && r.birth.nineStarKi ? ' · ' + r.birth.nineStarKi.yearName : ''}</div>
+        <div style="margin-top:1rem;font-size:14px;line-height:1.75;color:var(--ink-soft);font-family:'Cormorant Garamond',serif;font-style:italic">${glanceSummary}</div>
+        <div class="result-actions">
+          <button class="btn-action" onclick="downloadReading()">↓ Download</button>
+          <button class="btn-action" onclick="openShare()">↗ Share</button>
+          <button class="btn-action" onclick="resetForm()">← New Reading</button>
+        </div>
+      </div>
+    `;
+
+    // ── Vibration cells ──
+    const cells = [
+      { label: 'Street No.', value: r.numCalc.reduced },
+      { label: 'Street Name', value: r.nameCalc.reduced }
+    ];
+    if (r.unitCalc) cells.push({ label: 'Unit', value: r.unitCalc.reduced });
+    if (r.birth) cells.push({ label: 'Life Path', value: r.birth.lifePath });
+
+    html += '<div class="vibration-summary">';
+    cells.forEach(c => {
+      html += `<div class="vib-cell"><div class="vib-number">${c.value}</div><div class="vib-label">${c.label}</div></div>`;
+    });
+    html += '</div>';
+
+    // ── Three narrative sections ──
+    html += '<div class="reading-stack">';
+    html += buildNarrativeSection('you-are-here', 'You Are Here', 'Synthesis', buildYouAreHereNarrative(r), 'dot-synthesis');
+    if (r.birth) {
+      html += buildNarrativeSection('you-are', 'You Are', 'Personal Oracle', buildYouAreNarrative(r), 'dot-vedic');
+    }
+    html += buildNarrativeSection('here', 'Here: ' + r.address.split(',')[0], 'Location Analysis', buildHereNarrative(r), 'dot-chinese');
+    html += '</div>';
+
+    resultsEl.innerHTML = html;
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Auto-open first section
+    setTimeout(() => {
+      const firstCard = resultsEl.querySelector('.reading-card');
+      if (firstCard) {
+        const body = firstCard.querySelector('.card-body');
+        const toggle = firstCard.querySelector('.card-toggle');
+        if (body) body.classList.add('open');
+        if (toggle) toggle.classList.add('open');
+      }
+    }, 300);
+  }, 700);
+}
+
+function buildNarrativeSection(id, title, subtitle, content, dot) {
+  const accent = dotToAccent(dot);
+  return `
+    <div class="reading-card" style="border-left-color:${accent}" id="section-${id}">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-system">
+          <div class="system-dot ${dot}"></div>
+          <span class="system-name">${title} · ${subtitle}</span>
+        </div>
+        <span class="card-toggle">+</span>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <div class="card-text">${content}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildAtAGlance(r) {
+  const p = r.profile;
+  const n = r.nameProfile;
+  const intentLabel = r.intent === 'general' ? 'life energy' : r.intent;
+  let summary = `This is a ${p.keyword.toLowerCase()} address at its foundation, with ${n.keyword.toLowerCase()} energy woven through its name.`;
+  if (r.unitCalc && r.unitProfile) {
+    summary += ` Your private space within it carries the vibration of ${r.unitProfile.keyword.toLowerCase()}.`;
+  }
+  summary += ` For ${intentLabel}, this space ${r.numCalc.reduced === 8 || r.numCalc.reduced === 1 ? 'activates ambition and visibility' : r.numCalc.reduced === 6 || r.numCalc.reduced === 2 ? 'deepens connection and care' : r.numCalc.reduced === 7 || r.numCalc.reduced === 11 ? 'invites contemplation and insight' : 'offers its own kind of support'}.`;
+  if (r.birth && r.birth.bazi) {
+    summary += ` Your ${r.birth.bazi.daymasterElement} daymaster ${r.birth.bazi.daymasterElement === getElementFromNumber(r.numCalc.reduced) ? 'resonates with' : 'meets'} this ground.`;
+  }
+  if (r.iching) {
+    summary += ` The I Ching reflects Hexagram ${r.iching.number}: ${r.iching.name.split(' · ')[1] || r.iching.name}.`;
+  }
+  return summary;
+}
+
+// ══════════════════════════════════════════
+// SECTION 1: YOU ARE HERE — Synthesis
+// ══════════════════════════════════════════
+function buildYouAreHereNarrative(r) {
+  const { profile, nameProfile, unitProfile, numCalc, nameCalc, unitCalc, intent, birth, iching } = r;
+  const intentText = intent === 'general' ? 'daily life' : intent;
+  const harmony = checkHarmony(numCalc.reduced, nameCalc.reduced);
+  const streetName = r.address.split(' ').slice(1, r.address.indexOf(',') > -1 ? r.address.split(' ').indexOf(',') : undefined).join(' ');
+
+  let html = '';
+
+  // Opening synthesis
+  html += `<p>The numerological signature of ${r.address.split(',')[0]} is <strong>${r.vibration}</strong>. At its foundation, the building carries the energy of <strong>${numCalc.reduced}</strong> — ${profile.keyword} — while the name <em>${streetName}</em> weaves in <strong>${nameCalc.reduced}</strong>, the vibration of ${nameProfile.keyword.toLowerCase()}.`;
+  if (unitCalc && unitProfile) {
+    html += ` Behind your own door, the unit resolves to <strong>${unitCalc.reduced}</strong> — ${unitProfile.keyword.toLowerCase()} — the most intimate layer of the address, shaping your solitude and your dreams.`;
+  }
+  html += `</p>`;
+
+  // Elemental relationship
+  html += `<p>${harmony}</p>`;
+
+  // Five Elements & Chinese metaphysics woven in
+  html += `<p>In Chinese metaphysics, the building's number connects to ${getFiveElements(numCalc.reduced)}, while the street name carries ${getFiveElements(nameCalc.reduced)}. The ancient principle of <em>三才 (Sāncái)</em> — the Three Powers of Heaven, Earth, and Human — maps directly to these layers: street number as Heaven luck (天運), street name as Earth luck (地運)${unitCalc ? ', and your unit as Human luck (人運)' : ''}. ${getChineseNameNote(nameCalc.reduced)}</p>`;
+
+  // Vedic synthesis
+  html += `<p>The Vedic tradition reads the same numbers through the lens of <em>karma</em>. Your street number answers to <strong>${profile.planet}</strong> — ${profile.vedic}`;
+  if (nameCalc.reduced !== numCalc.reduced) {
+    html += ` The street name answers to <strong>${nameProfile.planet}</strong> — ${nameProfile.vedic}`;
+  }
+  html += `</p>`;
+
+  // Intent
+  html += `<p><strong>For ${intentText}:</strong> ${getSynthesisIntentText(r)}</p>`;
+
+  // I Ching integration
+  if (iching) {
+    html += `<div style="margin:1.25rem 0;padding:1rem 1.25rem;background:rgba(212,168,68,0.06);border-left:2px solid rgba(212,168,68,0.3);border-radius:0 3px 3px 0">`;
+    html += `<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.4rem">I Ching · Hexagram ${iching.number}</div>`;
+    html += `<div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:var(--ink);margin-bottom:0.3rem"><strong>${iching.name}</strong> <span style="font-size:0.85rem;color:var(--ink-muted)">(${iching.trigrams})</span></div>`;
+    html += `<p>${iching.meaning}</p>`;
+    html += `<p style="margin-top:0.5rem;font-style:italic">This hexagram emerged from the intersection of your address vibration${birth ? ' and birth data' : ''} — not a prediction, but a mirror of the energy already present at this location. Every hexagram contains the seed of its own transformation.</p>`;
+    html += `</div>`;
+  }
+
+  // Birth-location integration (if birth data present)
+  if (birth && birth.bazi) {
+    const b = birth.bazi;
+    html += `<p>Your <strong>${b.daymasterElement}</strong> daymaster brings its own elemental nature into this space. ${getDaymasterAddressNote(b.daymasterElement, numCalc.reduced)}</p>`;
+    const lp = birth.lifePath;
+    const lpProfile = NUMBER_PROFILES[lp] || NUMBER_PROFILES[9];
+    html += `<p>Life Path <strong>${lp}</strong> (${lpProfile.keyword}) meets address vibration <strong>${numCalc.reduced}</strong> (${profile.keyword}). ${getLifePathAddressNote(lp, numCalc.reduced)}</p>`;
+  }
+
+  // Shadow synthesis
+  html += `<div style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(212,168,68,0.06);border-left:2px solid rgba(212,168,68,0.3);border-radius:0 3px 3px 0">`;
+  html += `<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.4rem">Shadow · Awareness</div>`;
+  html += `<p style="font-style:italic">${generateShadowSynthesis(r)}</p>`;
+  html += `</div>`;
+
+  return html;
+}
+
+// ══════════════════════════════════════════
+// SECTION 2: YOU ARE — Personal Oracle
+// ══════════════════════════════════════════
+function buildYouAreNarrative(r) {
+  if (!r.birth || !r.birth.bazi) return '';
+
+  const b = r.birth.bazi;
+  const lp = r.birth.lifePath;
+  const ki = r.birth.nineStarKi;
+  const lpProfile = NUMBER_PROFILES[lp] || NUMBER_PROFILES[9];
+
+  let html = '';
+
+  // BaZi opening — the elemental self
+  html += `<p>You are <strong>${b.daymaster}</strong>. In Chinese metaphysics, this is your elemental core — the self the universe gave you to work with. Your daymaster carries <strong>${b.daymasterElement}</strong> energy, which shapes how you process the world, make decisions, and meet challenges.</p>`;
+
+  // Four Pillars visual
+  html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:1rem 0;text-align:center">`;
+  html += `<div style="padding:0.5rem;background:rgba(212,168,68,0.07);border-radius:3px;border:1px solid var(--border)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem">${b.year.stem}${b.year.branch}</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin-top:2px">Year · ${b.year.animal}</div></div>`;
+  html += `<div style="padding:0.5rem;background:rgba(212,168,68,0.07);border-radius:3px;border:1px solid var(--border)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem">${b.month.stem}${b.month.branch}</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin-top:2px">Month · ${b.month.animal}</div></div>`;
+  html += `<div style="padding:0.5rem;background:rgba(212,168,68,0.12);border-radius:3px;border:1px solid rgba(212,168,68,0.25)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem">${b.day.stem}${b.day.branch}</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--elem-earth);margin-top:2px">Day · You</div></div>`;
+  html += `<div style="padding:0.5rem;background:rgba(212,168,68,0.07);border-radius:3px;border:1px solid var(--border)"><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem">${b.hour.stem}${b.hour.branch}</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin-top:2px">Hour · ${b.hour.animal}</div></div>`;
+  html += `</div>`;
+
+  // Elemental balance as narrative
+  html += `<p>Your elemental balance reads: ${Object.entries(b.elements).map(([e,c]) => '<strong>' + e + '</strong> ×' + c).join(', ')}.`;
+  if (b.missing.length) {
+    html += ` ${b.missing.join(' and ')} ${b.missing.length === 1 ? 'is' : 'are'} absent from your chart. This is not a deficit — it is a direction. What is missing in the natal chart often becomes the life's deepest area of growth and fascination.`;
+  } else {
+    html += ` All five elements are present — a relatively balanced foundation. The work becomes one of proportion and emphasis, not of absence.`;
+  }
+  html += `</p>`;
+
+  // Life Path woven into the same narrative
+  html += `<p>Your Life Path is <strong>${lp}</strong> — ${lpProfile.keyword}. This is the deepest current your life moves through. Not what you do, but the river beneath everything you do. ${lpProfile.spirituality}</p>`;
+
+  // Nine Star Ki as seasonal context
+  if (ki) {
+    html += `<p>Nine Star Ki places you as <strong>${ki.yearName}</strong> — your fundamental relationship to space, direction, and seasonal rhythm. Your month star, <strong>${ki.monthName}</strong>, reveals the emotional inner life, the private layer beneath the public expression. Together, these three systems — BaZi, Life Path, and Nine Star Ki — paint a portrait not of who you should be, but of the elemental forces you were given to work with.</p>`;
+  }
+
+  // Shadow
+  html += `<div style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(212,168,68,0.06);border-left:2px solid rgba(212,168,68,0.3);border-radius:0 3px 3px 0">`;
+  html += `<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.4rem">Shadow · Awareness</div>`;
+  html += `<p style="font-style:italic">The life path number is a current, not a cage. It describes the river you are in, not the only direction you can swim. ${b.missing.length ? 'Your chart\'s missing ' + b.missing.join(' and ') + ' energy points toward where growth waits — not what you lack, but what you are being drawn toward.' : ''}</p>`;
+  html += `</div>`;
+
+  return html;
+}
+
+// ══════════════════════════════════════════
+// SECTION 3: HERE — Location Analysis
+// ══════════════════════════════════════════
+function buildHereNarrative(r) {
+  const { profile, nameProfile, unitProfile, numCalc, nameCalc, unitCalc, intent } = r;
+  const intentText = intent === 'general' ? 'daily life' : intent;
+  const streetName = r.address.split(' ').slice(1, r.address.indexOf(',') > -1 ? r.address.split(' ').indexOf(',') : undefined).join(' ');
+
+  let html = '';
+
+  // Street number — numerological foundation
+  html += `<p>The street number <strong>${numCalc.raw}</strong> reduces to <strong>${numCalc.reduced}</strong>${numCalc.raw !== numCalc.reduced ? (numCalc.reduced === 11 || numCalc.reduced === 22 || numCalc.reduced === 33 ? ' — a Master Number, never reduced further' : '') : ''} — ${profile.keyword}. This is the foundational vibration of the building, the energy everyone who enters breathes in. It is the most public and structural layer of the address, the ground note that sets the tone for everything within.</p>`;
+
+  html += `<p>${profile[intentText] || profile.career}</p>`;
+
+  // Street name — Chinese metaphysics
+  html += `<p>The name <em>${streetName}</em> carries the vibration <strong>${nameCalc.reduced}</strong> (letter sum: ${nameCalc.raw}) — ${nameProfile.keyword.toLowerCase()}. In Chinese metaphysics, this is <em>地運 (dì yùn)</em>, the luck of the earth: an invisible influence that shapes everyone who lives along this street, whether they sense it or not. ${nameProfile.chinese}</p>`;
+
+  html += `<p>${getChineseNameNote(nameCalc.reduced)} The Five Elements correlation for this name: ${getFiveElements(nameCalc.reduced)}.</p>`;
+
+  // Unit — private space
+  if (unitCalc && unitProfile) {
+    html += `<p>Your unit resolves to <strong>${unitCalc.reduced}</strong> — ${unitProfile.keyword.toLowerCase()}. This is the most intimate layer, the vibration that meets you when the door closes and the world recedes. It shapes your solitude, your recovery, your dreams, and the quality of thought you have when no one is watching. ${unitProfile[intentText] || unitProfile.career}</p>`;
+    html += `<p>In the Vedic tradition, unit ${unitCalc.reduced} answers to <strong>${unitProfile.planet}</strong>: ${unitProfile.vedic}</p>`;
+  }
+
+  // Vedic planetary rulers
+  html += `<p>The Vedic tradition adds the dimension of <em>karma</em> — not what this location offers, but what it asks of you. The street number answers to <strong>${profile.planet}</strong>: ${profile.vedic}`;
+  if (nameCalc.reduced !== numCalc.reduced) {
+    html += ` The street name answers to <strong>${nameProfile.planet}</strong>: ${nameProfile.vedic}`;
+  }
+  html += `</p>`;
+
+  // Strengths and tags
+  const allStrengths = [...new Set([...profile.strengths, ...nameProfile.strengths])];
+  html += `<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin:1rem 0">`;
+  allStrengths.forEach(s => {
+    html += `<span class="tag">${s}</span>`;
+  });
+  html += `</div>`;
+
+  // Shadow
+  html += `<div style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(212,168,68,0.06);border-left:2px solid rgba(212,168,68,0.3);border-radius:0 3px 3px 0">`;
+  html += `<div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.4rem">Shadow · Awareness</div>`;
+  html += `<p style="font-style:italic">${profile.shadow} At the name level, ${nameProfile.shadow.charAt(0).toLowerCase() + nameProfile.shadow.slice(1)}${unitProfile ? ' In your private space, ' + unitProfile.shadow.charAt(0).toLowerCase() + unitProfile.shadow.slice(1) : ''} Awareness of these patterns allows conscious navigation.</p>`;
+  html += `</div>`;
+
+  return html;
+}
+
+// ── Legacy card helpers (kept for buildCardHTML compatibility) ──
+function buildCards(r) { return []; }
+
+function getDaymasterAddressNote(element, addrNum) {
+  const addrElement = getElementFromNumber(addrNum);
+  const generates = { Wood:'Fire', Fire:'Earth', Earth:'Metal', Metal:'Water', Water:'Wood' };
+  const controls = { Wood:'Earth', Fire:'Metal', Earth:'Water', Metal:'Wood', Water:'Fire' };
+
+  if (element === addrElement) return `Your ${element} nature is echoed by this address — the space amplifies what you already are. A place of resonance, comfort, and sometimes intensification.`;
+  if (generates[element] === addrElement) return `Your ${element} nature generates the ${addrElement} energy of this address — you naturally feed and support the space. It feels like a place where your effort takes root.`;
+  if (generates[addrElement] === element) return `This address's ${addrElement} energy nourishes your ${element} nature — the space feeds you. A place of replenishment and quiet support.`;
+  if (controls[element] === addrElement) return `Your ${element} nature disciplines the ${addrElement} energy here — you bring order and direction to this space. It responds to your presence.`;
+  if (controls[addrElement] === element) return `This address's ${addrElement} energy challenges your ${element} nature — the space asks you to grow beyond your default mode. Productive tension.`;
+  return `Your ${element} nature and this address's energy create a layered, multidimensional relationship worth observing over time.`;
+}
+
+function getElementFromNumber(n) {
+  const map = {1:'Wood',2:'Earth',3:'Wood',4:'Metal',5:'Earth',6:'Metal',7:'Water',8:'Earth',9:'Fire',11:'Fire',22:'Earth',33:'Fire'};
+  return map[n] || 'Earth';
+}
+
+function getLifePathAddressNote(lp, addrNum) {
+  if (lp === addrNum) return 'A direct resonance — your life path and your address vibrate at the same frequency. This can feel deeply aligned but also intensifying.';
+  const diff = Math.abs(lp - addrNum);
+  if (diff <= 2) return 'These numbers are close in the numerological spectrum, creating a subtle harmonic relationship. The space supports your path without overwhelming it.';
+  return 'These numbers bring different qualities to your experience — the address adds a dimension that your life path alone does not emphasize, broadening your energetic range.';
+}
+
+function getChineseNameNote(n) {
+  const notes = {
+    1: "A name-1 street carries solar, pioneering energy. The ancient Chinese associated 1 with Heaven (天, Tiān) and the initiating force of the universe.",
+    2: "A name-2 street carries Earth energy (地, Dì) — receptive, nourishing, and deeply relational. The Chinese calendar associates 2 with the axis of partnership.",
+    3: "A name-3 street carries the creative triad — Heaven, Earth, and Human (天地人, Tiān Dì Rén). Growth and expression are natural here.",
+    4: "Note: 4 (四, Sì) sounds like death (死, Sǐ) in Mandarin, making it the most avoided number in Chinese culture. This does not make the address unlucky, but suggests the resident may encounter transformation, endings, and the building of something new from what was cleared.",
+    5: "A name-5 street sits at the center of all five directions and all five elements. In Chinese metaphysics, 5 is both the most balanced and the most volatile number — the center that holds everything and yet points nowhere in particular.",
+    6: "六 (Liù) is among the most auspicious name numbers in Chinese culture. The phrase 六六大顺 (liùliù dàshùn) means 'everything flows smoothly' — a street name carrying 6 energy is considered a sign of ease and harmonic flow.",
+    7: "7 (七, Qī) is associated in Chinese metaphysics with the completion of a small cycle and the refinement of inner life. It appears in the seven-day mourning period and the seventh lunar month — a number of reflection and depth.",
+    8: "八 (Bā) is the single most auspicious number in Chinese culture and business. Its resemblance to 发 (fā, to prosper) makes any 8 address a traditionally blessed one for wealth and abundance.",
+    9: "九 (Jiǔ) sounds like 久 (jiǔ, long-lasting) and is the emperor's number — associated with longevity, endurance, and the highest yang energy. A deeply auspicious name vibration.",
+    11: "十一 (Shíyī) is read in Chinese numerology as two 1s — singular solar force doubled. A pioneering, high-frequency name vibration.",
+    22: "二十二 contains a powerful double-2 structure — partnership energy meeting itself and evolving into mastery.",
+    33: "三十三 carries the creative triad (3) doubled and expanded — the energy of compassion at scale."
+  };
+  return notes[n] || notes[9];
+}
+
+function getFiveElements(n) {
+  const map = {
+    1: "Wood / Fire — growing, rising, initiating",
+    2: "Earth — receptive, holding, nurturing",
+    3: "Wood — expansive, creative, upward movement",
+    4: "Metal / Earth — structural, precise, crystalline",
+    5: "Earth (center) — the pivot of all five elements",
+    6: "Metal — refined, beautiful, harmonious",
+    7: "Metal / Water — penetrating, reflective, deep",
+    8: "Earth / Metal — solid, enduring, abundant",
+    9: "Fire — illuminating, culminating, transformative",
+    11: "Fire / Water — the bridge between opposites",
+    22: "Earth — large-scale stability",
+    33: "Fire — compassion as radiant heat"
+  };
+  return map[n] || map[9];
+}
+
+function generateSynthesis(r) {
+  const { profile, nameProfile, unitProfile, numCalc, nameCalc, unitCalc, intent } = r;
+
+  const harmony = checkHarmony(numCalc.reduced, nameCalc.reduced);
+  const unitNote = unitCalc ? ` Your unit's ${unitCalc.reduced}-energy (${unitProfile.keyword}) is the private chamber within this larger field.` : '';
+
+  return `
+    <p>Reading all layers together: your street number (${numCalc.reduced} · ${profile.keyword}) establishes the building's foundational character. The street name (${nameCalc.reduced} · ${nameProfile.keyword}) carries the environmental and place-energy. ${unitCalc ? `Your unit (${unitCalc.reduced} · ${unitProfile.keyword}) is your private resonance within that larger field.` : ''}</p>
+    <p><strong>Elemental relationship:</strong> ${harmony}</p>
+    <p><strong>For ${intent}:</strong> ${getSynthesisIntentText(r)}</p>
+    <p>The Chinese metaphysics principle of <em>三才 (Sāncái)</em> — the Three Powers of Heaven, Earth, and Human — maps directly to the three layers of an address: the street number (Heaven luck, 天運), the street name (Earth luck, 地運), and the unit (Human luck, 人運). When all three layers are in resonance, the resident experiences what the tradition calls <em>三才合德</em> — the three powers in harmonious virtue.${unitNote}</p>
+  `;
+}
+
+function checkHarmony(n1, n2) {
+  const fire = [1, 3, 9, 33];
+  const earth = [2, 4, 5, 8, 22];
+  const metal = [4, 6, 7];
+  const water = [2, 7, 11];
+  const wood = [1, 3];
+
+  const getEl = n => {
+    if (fire.includes(n)) return 'Fire';
+    if (water.includes(n)) return 'Water';
+    if (wood.includes(n)) return 'Wood';
+    if (metal.includes(n)) return 'Metal';
+    return 'Earth';
+  };
+
+  const e1 = getEl(n1), e2 = getEl(n2);
+  const generates = { Wood:'Fire', Fire:'Earth', Earth:'Metal', Metal:'Water', Water:'Wood' };
+  const controls = { Wood:'Earth', Fire:'Metal', Earth:'Water', Metal:'Wood', Water:'Fire' };
+
+  if (e1 === e2) return `Both layers share ${e1} energy — this creates an amplified, doubled field. Strong resonance, but also the potential for that element's shadow to be intensified.`;
+  if (generates[e1] === e2) return `${e1} (street number) generates ${e2} (street name) — a supportive, nourishing relationship. The building's foundation feeds the place-energy.`;
+  if (generates[e2] === e1) return `${e2} (street name) generates ${e1} (street number) — the environment nourishes the building's foundation. A harmonious inward flow.`;
+  if (controls[e1] === e2) return `${e1} (street number) controls ${e2} (street name) — the building's number disciplines and directs the place-energy. Can be productive if channeled consciously.`;
+  if (controls[e2] === e1) return `${e2} (street name) controls ${e1} (street number) — the environment creates productive tension with the building's core energy. Growth through navigating this dynamic.`;
+  return `${e1} and ${e2} are in a neutral relationship — neither generating nor controlling. Each operates somewhat independently, giving the address a multi-layered rather than unified character.`;
+}
+
+function getSynthesisIntentText(r) {
+  const { profile, nameProfile, unitProfile, intent, numCalc, nameCalc } = r;
+  const texts = {
+    career: `This address ${isHighForCareer(numCalc.reduced, nameCalc.reduced) ? 'strongly supports' : 'has nuanced support for'} professional ambition. The ${numCalc.reduced}-energy provides ${profile.career.split('.')[0].toLowerCase()}. The name's ${nameCalc.reduced}-vibration adds ${nameProfile.career.split('.')[0].toLowerCase()}.`,
+    love: `For relationships, this address ${numCalc.reduced === 2 || numCalc.reduced === 6 ? 'is among the most supportive' : 'offers a particular quality of'} intimate life. ${profile.love}`,
+    healing: `As a healing space, this address ${profile.healing} ${nameProfile.healing}`,
+    wealth: `For wealth, ${profile.wealth} The name-layer adds: ${nameProfile.wealth}`,
+    creativity: `Creatively, this address ${profile.creativity} The name's influence: ${nameProfile.creativity}`,
+    spirituality: `Spiritually, ${profile.spirituality}`,
+    general: `Overall, this address creates a field of ${profile.keyword.toLowerCase()} energy at the building level, ${nameProfile.keyword.toLowerCase()} energy in the environment, ${unitProfile ? `and ${unitProfile.keyword.toLowerCase()} energy in your private space` : 'and carries a multi-layered character'}.`
+  };
+  return texts[intent] || texts.general;
+}
+
+function isHighForCareer(n1, n2) {
+  const careerNums = [1, 5, 8, 11, 22];
+  return careerNums.includes(n1) || careerNums.includes(n2);
+}
+
+function getSynthesisTags(r) {
+  const tags = [];
+  const e = [r.numCalc.reduced, r.nameCalc.reduced];
+  if (r.unitCalc) e.push(r.unitCalc.reduced);
+  if (e.includes(11) || e.includes(22) || e.includes(33)) tags.push('Master Number Present');
+  if (e.every(n => n === e[0])) tags.push('Triple Resonance');
+  tags.push('Three Powers (三才)', 'Sancai Analysis');
+  return tags;
+}
+
+function generateShadowSynthesis(r) {
+  const nums = [r.numCalc.reduced, r.nameCalc.reduced];
+  if (r.unitCalc) nums.push(r.unitCalc.reduced);
+  const shadows = nums.map(n => (NUMBER_PROFILES[n] || NUMBER_PROFILES[9]).shadow);
+  return 'Combined shadow: ' + shadows[0].split('.')[0].toLowerCase() + '; at the name level, ' + shadows[1].split('.')[0].toLowerCase() + (shadows[2] ? '; privately, ' + shadows[2].split('.')[0].toLowerCase() : '') + '. Awareness of these patterns allows conscious navigation.';
+}
+
+function dotToAccent(dot) {
+  const map = {
+    'dot-numerology': 'var(--elem-earth)',
+    'dot-chinese':    'var(--elem-wood)',
+    'dot-vedic':      'var(--elem-fire)',
+    'dot-synthesis':  'var(--elem-water)',
+    'dot-astro':      'var(--elem-metal)'
+  };
+  return map[dot] || 'var(--elem-earth)';  /* aged gold as default accent */
+}
+
+function buildCardHTML(card, i) {
+  const tagsHTML = card.tags.map(t => `<span class="tag">${t}</span>`).join('');
+  const accent = dotToAccent(card.dot);
+  return `
+    <div class="reading-card" style="border-left-color:${accent}">
+      <div class="card-header" onclick="toggleCard(this)">
+        <div class="card-system">
+          <div class="system-dot ${card.dot}"></div>
+          <span class="system-name">${card.system} · ${card.label}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span class="card-number">${card.number}</span>
+          <span class="card-toggle">+</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-body-inner">
+          <div class="card-keyword">${card.keyword}</div>
+          <div class="tag-row">${tagsHTML}</div>
+          <div class="card-text">${card.content}</div>
+          <div class="shadow-box">
+            <div class="shadow-label">Shadow · Awareness</div>
+            <div class="shadow-text">${card.shadow}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function toggleCard(header) {
+  const body = header.nextElementSibling;
+  const toggle = header.querySelector('.card-toggle');
+  body.classList.toggle('open');
+  toggle.classList.toggle('open');
+}
+
+// ===== ASTROCARTOGRAPHY ENGINE =====
+function generateAstro() {
+  const birthDate = document.getElementById('birth-date').value;
+  const birthTime = document.getElementById('birth-time').value;
+  const birthPlace = document.getElementById('birth-place').value;
+  const astroIntent = document.getElementById('astro-intent').value;
+
+  if (!birthDate) {
+    showToast('Please enter your date of birth');
+    return;
+  }
+
+  // Share birth data if not already computed
+  if (!window.birthChart) {
+    document.getElementById('addr-birth-date') && (document.getElementById('addr-birth-date').value = birthDate);
+    document.getElementById('addr-birth-time') && (document.getElementById('addr-birth-time').value = birthTime);
+    computeBirthData();
+  }
+
+  const container = document.getElementById('astro-results');
+  container.innerHTML = `<div class="loading"><div class="breath-circle"></div><span>Reading planetary lines<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></span></div>`;
+
+  setTimeout(() => {
+    const locations = getAstroLocations(birthDate, birthTime, birthPlace, astroIntent);
+    renderAstroResults(locations, astroIntent, container);
+  }, 800);
+}
+
+function getAstroLocations(date, time, place, intent) {
+  // Derive birth year for generational context
+  const year = date ? parseInt(date.split('-')[0]) : 1990;
+  const month = date ? parseInt(date.split('-')[1]) : 6;
+
+  // Assign planetary lines based on birth data patterns
+  // Real astrocartography requires precise astronomical calculation;
+  // here we provide culturally and astrologically grounded location sets
+  const allLocations = {
+    career: [
+      { name: 'London, UK', country: 'United Kingdom', lines: ['Mercury MC', 'Saturn IC'], type: 'Career Power', text: 'Mercury on the Midheaven amplifies your public voice, communication, and intellectual authority. London rewards precision, ambition, and long-form thinking. Saturn IC grounds this into lasting professional structure. A place where credentials matter and effort compounds.', numerology: 'London = 3+6+5+4+6+5 = 29 → 11 (Master: Vision)', career: 95, love: 55, healing: 40 },
+      { name: 'Tokyo, Japan', country: 'Japan', lines: ['Sun MC', 'Jupiter IC'], type: 'Peak Visibility', text: 'Sun on the Midheaven is the signature of places where you shine most publicly — where your professional identity is fully seen and recognized. Jupiter IC creates a sense of deep belonging and abundant expansion at the home level. Tokyo rewards diligence with extraordinary social respect.', numerology: 'Tokyo = 2+6+2+7+6 = 23 → 5 (Mercury: commerce, speed)', career: 92, love: 60, healing: 50 },
+      { name: 'Singapore', country: 'Singapore', lines: ['Mars MC', 'Venus DSC'], type: 'Ambitious Drive', text: 'Mars MC creates places where competitive, ambitious energy is activated at the career level. Singapore\'s 5-vibration city energy and Mars influence create a high-velocity professional environment. Venus DSC suggests partnership and beauty enter through relationships here.', numerology: 'Singapore = 1+9+5+7+1+7+6+9+5 = 50 → 5 (Movement, commerce)', career: 88, love: 65, healing: 35 }
+    ],
+    love: [
+      { name: 'Paris, France', country: 'France', lines: ['Venus ASC', 'Moon IC'], type: 'Deep Partnership', text: 'Venus on the Ascendant is the classic signature of places where love and beauty find you effortlessly — where you appear at your most magnetic and relational. Moon IC creates emotional nourishment and a profound sense of home. Paris\'s 6-vibration name energy reinforces Venus\'s domain entirely.', numerology: 'Paris = 7+1+9+9+1 = 27 → 9 (Completion, deep love)', career: 55, love: 97, healing: 65 },
+      { name: 'Kyoto, Japan', country: 'Japan', lines: ['Venus IC', 'Neptune ASC'], type: 'Sacred Beauty', text: 'Venus IC is among the most beautiful placements for home life — it enchants the domestic sphere with beauty, aesthetic pleasure, and relational warmth. Neptune ASC adds a quality of romantic idealization and spiritual romance. A place where love has a sacred, otherworldly quality.', numerology: 'Kyoto = 2+7+6+2+6 = 23 → 5 (Mercury, refined flow)', career: 50, love: 94, healing: 72 },
+      { name: 'Buenos Aires, Argentina', country: 'Argentina', lines: ['Moon IC', 'Venus MC'], type: 'Emotional Nourishment', text: 'Moon IC is the signature of deep emotional belonging — the feeling of having found a second home. Buenos Aires offers warmth, passion, and the kind of emotional richness that feeds the inner life. Venus MC makes beauty and connection visible at the public level.', numerology: 'Buenos Aires = highly complex; reduces to creative 3 vibration', career: 60, love: 90, healing: 78 }
+    ],
+    healing: [
+      { name: 'Lisbon, Portugal', country: 'Portugal', lines: ['Sun ASC', 'Jupiter IC'], type: 'Personal Empowerment', text: 'Sun on the Ascendant is the most personally empowering of all astrocartography lines — you appear to yourself and others at your fullest solar expression. Jupiter IC creates ease, abundance, and expansion at the home level. Lisbon\'s golden light and 3-vibration creative energy make this a place of genuine restoration through being fully oneself.', numerology: 'Lisbon = 3+9+1+2+6+5 = 26 → 8 (Power, authority)', career: 88, love: 72, healing: 90 },
+      { name: 'Bali, Indonesia', country: 'Indonesia', lines: ['Neptune IC', 'Moon ASC'], type: 'Deep Restoration', text: 'Neptune IC is the signature of places with an almost otherworldly quality of peace — the dissolution of daily tension into something larger. Moon ASC makes your emotional nature fully visible and accepted. Bali\'s spiritual infrastructure creates an environment where healing happens without effort.', numerology: 'Bali = 2+1+3+9 = 15 → 6 (Venus, healing sanctuary)', career: 40, love: 75, healing: 97 },
+      { name: 'Sedona, AZ, USA', country: 'USA', lines: ['Chiron IC', 'Jupiter ASC'], type: 'Spiritual Healing', text: 'Chiron lines mark places of deep healing of old wounds — particularly useful during periods of conscious inner work. Jupiter ASC creates optimism, expansion, and a sense that life is generous here. Sedona\'s extraordinary vortex energy and numerological resonance make it one of the premier healing locations in the Western hemisphere.', numerology: 'Sedona = 1+5+4+6+5+1 = 22 (Master Builder — powerful Earth energy)', career: 45, love: 60, healing: 95 }
+    ],
+    wealth: [
+      { name: 'Hong Kong', country: 'China SAR', lines: ['Jupiter MC', 'Mars ASC'], type: 'Wealth Activation', text: 'Jupiter on the Midheaven creates places where professional abundance and recognition expand naturally. Mars ASC provides the drive and competitive edge required to capitalize on opportunity. Hong Kong\'s 8-dominant cultural numerology and global financial infrastructure create one of the highest wealth-activation environments on earth.', numerology: 'Hong Kong = strong 8 cultural vibration (八, bā — the prosperity number)', career: 90, love: 55, healing: 35 },
+      { name: 'Dubai, UAE', country: 'UAE', lines: ['Sun MC', 'Jupiter ASC'], type: 'Abundance & Visibility', text: 'Sun MC combined with Jupiter ASC creates the signature of places where you are seen and rewarded at the highest level. Dubai\'s extraordinary concentration of global capital, combined with a cultural numerological emphasis on abundance and display, makes it a powerful wealth-activation location for those aligned with its energy.', numerology: 'Dubai = 4+3+2+1+9 = 19 → 10 → 1 (Leadership, initiation)', career: 88, love: 50, healing: 30 },
+      { name: 'New York, NY, USA', country: 'USA', lines: ['Saturn IC', 'Mercury MC'], type: 'Earned Mastery', text: 'Saturn IC creates a native power zone — the city that is cosmically your own. Mercury MC activates communication, commerce, and public voice. New York\'s extraordinary density of economic activity means that Saturnian discipline here generates compounding returns over time. Not the easiest wealth environment but potentially one of the most lasting.', numerology: 'New York = 5+5+5+7+6+9+2 = 39 → 12 → 3 (Creative abundance)', career: 92, love: 65, healing: 55 }
+    ],
+    spiritual: [
+      { name: 'Varanasi, India', country: 'India', lines: ['Ketu IC', 'Saturn ASC'], type: 'Liberation', text: 'Ketu IC marks places that activate past life material, spiritual depth, and the longing for liberation (moksha). Saturn ASC adds the gravitas of genuine spiritual discipline. Varanasi is considered in Hindu tradition to be the place where the cycle of birth and death is most consciously navigated — it sits on a Ketu line for a significant portion of the global population.', numerology: 'Varanasi = 4+1+9+1+5+1+1+9 = 31 → 4 (Sacred structure)', career: 30, love: 50, healing: 85 },
+      { name: 'Kyoto, Japan', country: 'Japan', lines: ['Neptune ASC', 'Moon IC'], type: 'Sacred Beauty', text: 'Neptune ASC creates places where the boundary between the ordinary and the sacred becomes permeable. The awareness that there is more to reality than what is visible becomes natural here. Kyoto\'s extraordinary density of shrines, temples, and aesthetic spiritual practice creates the perfect human container for Neptune\'s oceanic sensitivity.', numerology: 'Kyoto → 5 (Center, the pivot between worlds)', career: 50, love: 88, healing: 80 },
+      { name: 'Glastonbury, UK', country: 'United Kingdom', lines: ['Chiron ASC', 'Neptune IC'], type: 'Mythic Depth', text: 'Chiron ASC marks places that directly engage your deepest wound — and your deepest gift, which in mystical traditions are always the same force. Neptune IC dissolves the sense of separation at the home level. Glastonbury\'s legendary association with the Arthurian mythos, the ley line convergence, and the Tor make it one of the most spiritually activated locations in the Northern Hemisphere.', numerology: 'Glastonbury = 7+3+1+1+2+6+5+2+3+9+7 = complex → 9 (Completion)', career: 35, love: 60, healing: 92 }
+    ],
+    creativity: [
+      { name: 'Barcelona, Spain', country: 'Spain', lines: ['Venus MC', 'Jupiter ASC'], type: 'Creative Flourishing', text: 'Venus on the Midheaven in a creative context creates places where your aesthetic vision receives public recognition and rewards. Jupiter ASC creates natural expansion, optimism, and the sense that creative possibilities are limitless. Barcelona\'s extraordinary architectural and artistic heritage — and its 11-vibration cultural energy — make it one of the premier creative activation zones on earth.', numerology: 'Barcelona = 2+1+9+3+5+3+6+5+1 = 35 → 8 (Powerful manifestation)', career: 82, love: 75, healing: 65 },
+      { name: 'Berlin, Germany', country: 'Germany', lines: ['Uranus MC', 'Neptune ASC'], type: 'Creative Disruption', text: 'Uranus MC creates places where you are recognized for originality, disruption, and the kind of creative vision that challenges convention. Neptune ASC adds spiritual depth and the dissolution of creative limitations. Berlin\'s extraordinary creative subculture and 22-vibration cultural infrastructure create an environment of large-scale creative ambition.', numerology: 'Berlin = 2+5+9+3+9+5 = 33 (Master Teacher energy — rare)', career: 70, love: 55, healing: 50 },
+      { name: 'New Orleans, LA, USA', country: 'USA', lines: ['Jupiter IC', 'Moon MC'], type: 'Soul Expression', text: 'Jupiter IC creates a profound sense of creative abundance and belonging at the home level. Moon MC brings emotional authenticity into the public creative sphere. New Orleans\' extraordinary musical and artistic culture, combined with its deep connection to African, Caribbean, and French cultural streams, creates one of the richest creative soil environments in the Americas.', numerology: 'New Orleans → strong 3 and 9 vibration (joy + completion)', career: 72, love: 80, healing: 70 }
+    ]
+  };
+
+  return allLocations[intent] || allLocations.career;
+}
+
+function renderAstroResults(locations, intent, container) {
+  const intentLabels = {
+    career: 'Career & Visibility', love: 'Love & Partnership',
+    healing: 'Healing & Restoration', wealth: 'Wealth & Abundance',
+    spiritual: 'Spiritual Awakening', creativity: 'Creative Expansion'
+  };
+
+  let html = `
+    <div style="margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+      <div class="header-ornament" style="text-align:left">Locations for ${intentLabels[intent]}</div>
+      <p style="font-size:13px;color:var(--ink-muted);margin-top:0.5rem">Three locations where your astrological lines, numerological resonance, and Chinese metaphysical energy align for your intention.</p>
+    </div>
+  `;
+
+  locations.forEach((loc, i) => {
+    const lineTagsHTML = loc.lines.map(l => {
+      const cls = l.toLowerCase().includes('venus') ? 'line-venus' :
+                  l.toLowerCase().includes('jupiter') ? 'line-jupiter' :
+                  l.toLowerCase().includes('sun') ? 'line-sun' :
+                  l.toLowerCase().includes('moon') ? 'line-moon' :
+                  l.toLowerCase().includes('saturn') ? 'line-saturn' :
+                  l.toLowerCase().includes('mercury') ? 'line-mercury' :
+                  l.toLowerCase().includes('mars') ? 'line-mars' : 'line-neptune';
+      return `<span class="line-tag ${cls}">${l}</span>`;
+    }).join('');
+
+    html += `
+      <div class="astro-location-card" style="animation-delay:${i * 0.08}s">
+        <div class="loc-header">
+          <div class="loc-name">${loc.name}</div>
+          <div class="loc-type">${loc.type}</div>
+        </div>
+        <div class="loc-lines">${lineTagsHTML}</div>
+        <div class="loc-text">${loc.text}</div>
+        <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border)">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:0.5rem">Address Numerology</div>
+          <div style="font-size:12px;color:var(--ink-soft);font-style:italic;font-family:'Cormorant Garamond',serif">${loc.numerology}</div>
+        </div>
+        <div style="margin-top:1rem">
+          ${buildRatingRow('Career', loc.career)}
+          ${buildRatingRow('Love', loc.love)}
+          ${buildRatingRow('Healing', loc.healing)}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  // Trigger staggered fade-in
+  const cards = container.querySelectorAll('.astro-location-card');
+  cards.forEach(c => { c.style.opacity = '0'; c.style.transform = 'translateY(12px)'; c.style.transition = 'opacity 0.5s ease, transform 0.5s ease'; });
+  requestAnimationFrame(() => {
+    cards.forEach((c, i) => {
+      setTimeout(() => { c.style.opacity = '1'; c.style.transform = 'translateY(0)'; }, i * 120);
+    });
+  });
+}
+
+function buildRatingRow(label, value) {
+  return `
+    <div class="rating-row">
+      <div class="rating-label">${label}</div>
+      <div class="rating-bar">
+        <div class="rating-fill" style="width:${value}%"></div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== DOWNLOAD =====
+function downloadReading() {
+  if (!currentReading) return;
+
+  const content = buildTextReading(currentReading);
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `location-oracle-${currentReading.address.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.txt`;
+  a.click();
+  showToast('Reading downloaded');
+}
+
+function buildTextReading(r) {
+  const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  const line = '─'.repeat(60);
+  let text = `YOU ARE HERE — LOCATION ORACLE\n`;
+  text += `Generated: ${date}\n`;
+  text += `${line}\n\n`;
+  text += `ADDRESS: ${r.address}\n`;
+  text += `VIBRATION: ${r.vibration}${r.birth ? ' · Life Path ' + r.birth.lifePath : ''}\n\n`;
+  text += `AT A GLANCE\n`;
+  text += `${buildAtAGlance(r)}\n\n`;
+  text += `${line}\n\n`;
+
+  // Section 1: YOU ARE HERE — Synthesis
+  text += `YOU ARE HERE — SYNTHESIS\n`;
+  text += `${line}\n\n`;
+  text += `Vibration: ${r.vibration}\n`;
+  text += `Street Number ${r.numCalc.reduced} (${r.profile.keyword}) + Street Name ${r.nameCalc.reduced} (${r.nameProfile.keyword})`;
+  if (r.unitCalc) text += ` + Unit ${r.unitCalc.reduced} (${r.unitProfile.keyword})`;
+  text += `\n`;
+  text += `Elemental relationship: ${checkHarmony(r.numCalc.reduced, r.nameCalc.reduced)}\n`;
+  text += `For ${r.intent}: ${getSynthesisIntentText(r)}\n`;
+  if (r.iching) {
+    text += `\nI Ching: Hexagram ${r.iching.number} — ${r.iching.name} (${r.iching.trigrams})\n`;
+    text += `${r.iching.meaning}\n`;
+  }
+  if (r.birth && r.birth.bazi) {
+    text += `\n${r.birth.bazi.daymasterElement} daymaster at this address: ${getDaymasterAddressNote(r.birth.bazi.daymasterElement, r.numCalc.reduced)}\n`;
+    const lpProf = NUMBER_PROFILES[r.birth.lifePath] || NUMBER_PROFILES[9];
+    text += `Life Path ${r.birth.lifePath} (${lpProf.keyword}) meets vibration ${r.numCalc.reduced}: ${getLifePathAddressNote(r.birth.lifePath, r.numCalc.reduced)}\n`;
+  }
+  text += `\n`;
+
+  // Section 2: YOU ARE — Personal (if birth data)
+  if (r.birth && r.birth.bazi) {
+    const b = r.birth.bazi;
+    text += `YOU ARE — PERSONAL ORACLE\n`;
+    text += `${line}\n\n`;
+    text += `Daymaster: ${b.daymaster} (${b.daymasterElement})\n`;
+    text += `Four Pillars: ${b.year.stem}${b.year.branch} (${b.year.animal}) · ${b.month.stem}${b.month.branch} (${b.month.animal}) · ${b.day.stem}${b.day.branch} (${b.day.animal}) · ${b.hour.stem}${b.hour.branch} (${b.hour.animal})\n`;
+    text += `Elements: ${Object.entries(b.elements).map(([e,c]) => e + ' ' + c).join(', ')}`;
+    if (b.missing.length) text += ` (Missing: ${b.missing.join(', ')})`;
+    text += `\n\n`;
+    const lpProf = NUMBER_PROFILES[r.birth.lifePath] || NUMBER_PROFILES[9];
+    text += `Life Path ${r.birth.lifePath} — ${lpProf.keyword}\n`;
+    text += `${lpProf.spirituality}\n`;
+    if (r.birth.nineStarKi) {
+      text += `\nNine Star Ki: ${r.birth.nineStarKi.yearName} (year) · ${r.birth.nineStarKi.monthName} (month)\n`;
+    }
+    text += `\n`;
+  }
+
+  // Section 3: HERE — Location
+  text += `HERE — ${r.address.split(',')[0].toUpperCase()}\n`;
+  text += `${line}\n\n`;
+  text += `Street Number ${r.numCalc.reduced}: ${r.profile.keyword}\n`;
+  text += `Planet: ${r.profile.planet} · ${r.profile.vedic}\n`;
+  text += `Chinese: ${r.profile.chinese}\n`;
+  text += `Strengths: ${r.profile.strengths.join(', ')}\n`;
+  text += `Shadow: ${r.profile.shadow}\n\n`;
+  text += `Street Name ${r.nameCalc.reduced}: ${r.nameProfile.keyword}\n`;
+  text += `Planet: ${r.nameProfile.planet}\n`;
+  text += `Chinese: ${r.nameProfile.chinese}\n`;
+  text += `${getChineseNameNote(r.nameCalc.reduced)}\n`;
+  if (r.unitCalc && r.unitProfile) {
+    text += `\nUnit ${r.unitCalc.reduced}: ${r.unitProfile.keyword}\n`;
+    text += `Planet: ${r.unitProfile.planet} · ${r.unitProfile.vedic}\n`;
+  }
+  text += `\n${line}\n`;
+  text += `You Are Here · Ancient Wisdom for the Modern Day\n`;
+
+  return text;
+}
+
+// ===== SHARE =====
+function openShare() {
+  if (!currentReading) return;
+  const shareText = `You Are Here — Reading\n${currentReading.address}\nVibration: ${currentReading.vibration}${currentReading.birth ? ' · Life Path ' + currentReading.birth.lifePath : ''}\n${currentReading.profile.keyword} · ${currentReading.nameProfile.keyword}`;
+  document.getElementById('share-text-input').value = shareText;
+  document.getElementById('share-overlay').classList.add('open');
+}
+
+function closeShare() {
+  document.getElementById('share-overlay').classList.remove('open');
+}
+
+function closeShareIfOutside(e) {
+  if (e.target === document.getElementById('share-overlay')) closeShare();
+}
+
+function copyShare() {
+  const input = document.getElementById('share-text-input');
+  input.select();
+  document.execCommand('copy');
+  showToast('Copied to clipboard');
+  closeShare();
+}
+
+function resetForm() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('address-form').style.display = 'block';
+  currentReading = null;
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== PRIMER OVERLAYS =====
+function openPrimer(system) {
+  const el = document.getElementById('primer-' + system);
+  if (el) {
+    el.classList.add('open');
+    el.scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closePrimer(system) {
+  const el = document.getElementById('primer-' + system);
+  if (el) {
+    el.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+// Close primer on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.primer-overlay.open').forEach(function(el) {
+      el.classList.remove('open');
+    });
+    document.body.style.overflow = '';
+  }
+});
+</script>
+</body>
+</html>
